@@ -79,9 +79,10 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 		}
 		defer rows.Close()
 
-		var orders []*models.Order
+		orders := make([]*models.Order, 0, 20)
+
 		for rows.Next() {
-			var order *models.Order
+			order := &models.Order{}
 			err = rows.Scan(&order.ID, &order.Status, &order.ClientID, &order.ShopID, &order.ProductID, &order.CreatedAt, &order.PayedAt, &order.PackedAt, &order.DeliveredAt, &order.CancelReason)
 			if err != nil {
 				o.logger.Errorf("db error: %s", err)
