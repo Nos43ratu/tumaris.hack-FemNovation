@@ -291,7 +291,7 @@ const Cart = () => {
 const Avatar = () => {
   const navigate = useNavigate();
   const mutation = useMutation({
-    mutationFn: () => axios.post("/api/sign-out"),
+    mutationFn: () => axios.get("/api/sign-out"),
     onSuccess: (data: any) => {
       return navigate("/");
     },
