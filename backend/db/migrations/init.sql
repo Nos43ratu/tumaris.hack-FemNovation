@@ -119,3 +119,4 @@ CREATE TABLE public.orders
     CONSTRAINT fk_product_id
         FOREIGN KEY (product_id) REFERENCES product(id)
 );
+
