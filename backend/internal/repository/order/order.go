@@ -92,7 +92,7 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 			order := &models.Order{}
 
 			reason := &sql.NullString{}
-			err = rows.Scan(&order.ID, &order.Status, &order.ClientID, &order.ShopID, &order.ProductID, &order.CreatedAt, &order.PayedAt, &order.PackedAt, &order.DeliveredAt, &reason)
+			err = rows.Scan(&order.ID, &order.Status, &order.ClientID, &order.ShopID, &order.ProductID, &order.CreatedAt, &order.PayedAt, &order.PackedAt, &order.DeliveredAt, reason)
 			if err != nil {
 				o.logger.Errorf("db error: %s", err)
 				return nil, models.ErrDBConnection
