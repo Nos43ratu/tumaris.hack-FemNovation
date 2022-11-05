@@ -13,7 +13,7 @@ CREATE TABLE public.users
     link_to_instagram character varying,
     rating          float                     DEFAULT 0     NOT NULL,
     created         timestamp without time zone DEFAULT now() NOT NULL,
-    updated         timestamp without time zone DEFAULT now() NOT NULL,
+    updated         timestamp without time zone DEFAULT now() NOT NULL
 );
 
 CREATE TABLE address
@@ -27,8 +27,8 @@ CREATE TABLE address
     building character varying                         NOT NULL,
     postal_code character varying                         NOT NULL,
     flat_number character varying,
-    floor character varying,
-)
+    floor character varying
+);
 
 CREATE TABLE shop
 (
@@ -41,13 +41,32 @@ CREATE TABLE shop
     CONSTRAINT fk_address
         FOREIGN KEY (address_id) REFERENCES address(id),
     CONSTRAINT fk_users
-        FOREIGN KEY (user_id) REFERENCES users(id),
-)
+        FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
 CREATE TABLE product
 (
     id serial PRIMARY KEY,
     name    character varying   NOT NULL,
     description    character varying   NOT NULL,
-    sizes 
-)
+    sizes text[], 
+    colors integer array,
+    weight float, -- in kg
+    price float NOT NULL, -- in dollars?
+    rating float -- average from comments
+);
+
+CREATE TABLE public.comment
+(
+    id         integer                                   NOT NULL,
+    text       character varying                         NOT NULL,
+    score integer NOT NULL, -- from 1 to 5
+    created    timestamp without time zone DEFAULT now() NOT NULL,
+    updated    timestamp without time zone DEFAULT now() NOT NULL,
+    user_id   integer,
+    product_id integer,
+    CONSTRAINT fk_product
+        FOREIGN KEY (product_id) REFERENCES product(id),
+    CONSTRAINT fk_users_1
+        FOREIGN KEY (user_id) REFERENCES users(id)
+);
