@@ -37,7 +37,7 @@ type Refresh struct {
 
 func NewHandler(services *service.Service, sugar *zap.SugaredLogger) *Handler {
 	token := &Token{
-		Pepper: "fjdskljdsfldsfdsjldsjflie4r",
+		Pepper: "67072341-eb28-4174-a01f-baf72c40b966",
 		Access: &Access{
 			TTL: 15 * time.Hour,
 		},
