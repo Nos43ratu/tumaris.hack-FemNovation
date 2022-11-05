@@ -34,7 +34,7 @@ func (o *OrderRepo) Create(order *models.Order) error {
 		return models.ErrDBConnection
 	}
 
-	query := `INSERT INTO orders (status, client_id, shop_id, product_id) VALUES ($1, $2, $3, $4)`
+	query := `INSERT INTO orders (status, client_id, shop_id, product_id) VALUES ($1, $2, $3, $4) RETURNING id`
 	err = tx.QueryRow(ctx, query, 0, order.ClientID, order.ShopID, order.ProductID).Scan(&order.ID)
 	if err != nil {
 		errTX := tx.Rollback(ctx)
