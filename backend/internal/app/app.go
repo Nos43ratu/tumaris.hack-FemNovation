@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+
+	"tumaris.hack-FemNovation/backend/internal/repository"
 )
 
 func Run() {
@@ -26,19 +28,19 @@ func Run() {
 	rdb, err := repository.RedisConn(sugar)
 	if err != nil {
 		sugar.Errorf("Cannot connect to redis: %v", err)
-		return err
+		return
 	}
 	defer rdb.Close()
 
-	db, err := repository.DBConnection(cfg.DB, sugar)
+	db, err := repository.DBConnection(sugar)
 	if err != nil {
 		sugar.Errorf("Cannot connect to db: %v", err)
-		return err
+		return
 	}
 	defer db.Close()
 
-	repositories := repository.New(db, rdb, producer, cfg, sugar)
-	service := service.New(repositories, cfg)
+	repositories := repository.New(db, rdb, sugar)
+	service := service.New(repositories)
 	handlers := delivery.NewHandler(service, sugar)
 
 	port := 8090
