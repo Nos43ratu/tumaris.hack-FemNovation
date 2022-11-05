@@ -3,6 +3,7 @@ import { LockClosedIcon } from "@heroicons/react/20/solid";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SignIn = () => {
   const [email, setEmail] = React.useState("");
@@ -12,9 +13,13 @@ const SignIn = () => {
   const mutation = useMutation({
     mutationFn: (data: { email: string; password: string }) =>
       axios.post("/api/sign-in", data),
-    onSuccess: (data) => {
-      navigate("/cabinet/orders");
+    onSuccess: (data: any) => {
+      if (!data.error) {
+        return navigate("/cabinet/orders");
+      }
+      return toast.error("Не верный логин или пароль");
     },
+    onError: () => toast.error("Что то пошло не так :("),
   });
 
   const handleSignIn = (e: any) => {

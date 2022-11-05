@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Dialog, Popover, Transition } from "@headlessui/react";
+import { Dialog, Menu, Popover, Transition } from "@headlessui/react";
 import {
   ShoppingBagIcon,
   BellIcon,
@@ -10,6 +10,9 @@ import create from "zustand";
 import { StarIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const user = {
   name: "Whitney Francis",
@@ -17,12 +20,6 @@ const user = {
   imageUrl:
     "https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80",
 };
-const navigation = [
-  { name: "Dashboard", href: "#" },
-  { name: "Jobs", href: "#" },
-  { name: "Applicants", href: "#" },
-  { name: "Company", href: "#" },
-];
 
 const Layout = () => {
   return (
@@ -32,7 +29,7 @@ const Layout = () => {
           <Popover className="flex h-16 justify-between">
             <div className="flex px-2 lg:px-0">
               <div className="flex flex-shrink-0 items-center">
-                <a href="#">
+                <a href="/">
                   <svg
                     className="h-[20px] w-[150px] md:h-[26px] md:w-[200px]"
                     viewBox="0 0 556 74"
@@ -65,10 +62,14 @@ const Layout = () => {
 };
 
 export const useCartStore = create<{
+  open: boolean;
+  handleOpen: (value: boolean) => void;
   products: Product[];
   addProduct: (product: Product) => void;
   removeProduct: (id: number) => void;
 }>((set, get) => ({
+  open: false,
+  handleOpen: (value) => set({ open: value }),
   products: [],
   addProduct: (product: Product) => {
     set((state) => {
@@ -94,8 +95,6 @@ const Cart = () => {
   const cart = useCartStore();
   const [parent] = useAutoAnimate<HTMLUListElement | null>();
 
-  const [open, setOpen] = useState(false);
-
   const handleCheckout = () => {
     console.log("checkout");
     navigate("/cabinet");
@@ -105,14 +104,18 @@ const Cart = () => {
     <>
       <div className="flex items-center">
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => cart.handleOpen(true)}
           className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
         >
           <ShoppingBagIcon className="block h-6 w-6" aria-hidden="true" />
         </button>
       </div>
-      <Transition.Root show={open} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={setOpen}>
+      <Transition.Root show={cart.open} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => cart.handleOpen(false)}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-in-out duration-500"
@@ -148,7 +151,7 @@ const Cart = () => {
                             <button
                               type="button"
                               className="-m-2 p-2 text-gray-400 hover:text-gray-500"
-                              onClick={() => setOpen(false)}
+                              onClick={() => cart.handleOpen(false)}
                             >
                               <span className="sr-only">Close panel</span>
                               <XMarkIcon
@@ -264,7 +267,7 @@ const Cart = () => {
                             <button
                               onClick={() => {
                                 handleCheckout();
-                                setOpen(false);
+                                cart.handleOpen(false);
                               }}
                               className="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
                             >
@@ -286,15 +289,65 @@ const Cart = () => {
 };
 
 const Avatar = () => {
+  const navigate = useNavigate();
+  const mutation = useMutation({
+    mutationFn: () => axios.post("/api/sign-out"),
+    onSuccess: (data: any) => {
+      return navigate("/");
+    },
+  });
+
+  const handleSignOut = () => {
+    mutation.mutate();
+  };
+
   return (
-    <a href="/cabinet" className="relative ml-4 flex-shrink-0">
+    <Menu as="div" className="relative ml-3">
       <div>
-        <div className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <Menu.Button className="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
           <span className="sr-only">Open user menu</span>
-          <img className="h-10 w-10 rounded-full" src={user.imageUrl} alt="" />
-        </div>
+          <img className="h-8 w-8 rounded-full" src={user.imageUrl} alt="" />
+        </Menu.Button>
       </div>
-    </a>
+      <Transition
+        as={Fragment}
+        enter="transition ease-out duration-100"
+        enterFrom="transform opacity-0 scale-95"
+        enterTo="transform opacity-100 scale-100"
+        leave="transition ease-in duration-75"
+        leaveFrom="transform opacity-100 scale-100"
+        leaveTo="transform opacity-0 scale-95"
+      >
+        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <Menu.Item>
+            {({ active }) => (
+              <a
+                href="#"
+                className={clsx(
+                  active ? "bg-gray-100" : "",
+                  "block px-4 py-2 text-sm text-gray-700"
+                )}
+              >
+                Мой профиль
+              </a>
+            )}
+          </Menu.Item>
+          <Menu.Item>
+            {({ active }) => (
+              <button
+                onClick={handleSignOut}
+                className={clsx(
+                  active ? "bg-gray-100" : "",
+                  "block w-full px-4 py-2 text-left text-sm text-gray-700"
+                )}
+              >
+                Выйти
+              </button>
+            )}
+          </Menu.Item>
+        </Menu.Items>
+      </Transition>
+    </Menu>
   );
 };
 

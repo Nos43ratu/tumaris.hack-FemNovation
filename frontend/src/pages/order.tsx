@@ -218,9 +218,17 @@ const Products = () => {
 
   return (
     <div className="lg:col-span-3">
-      <div className="h-full bg-white">
-        {isLoading ? (
-          <div className="flex h-full w-full items-center justify-center text-blue-600">
+      <div className="relative h-full bg-white">
+        <div
+          className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
+          ref={parent}
+        >
+          {data?.map((product) => (
+            <ProductItem key={product.id} product={product} />
+          ))}
+        </div>
+        {isLoading && (
+          <div className="absolute flex h-full w-full items-center justify-center text-blue-600">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="10 10 80 80"
@@ -239,15 +247,6 @@ const Products = () => {
                 stroke-dasharray="164.93361431346415 56.97787143782138"
               />
             </svg>
-          </div>
-        ) : (
-          <div
-            className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
-            ref={parent}
-          >
-            {data?.map((product) => (
-              <ProductItem key={product.id} product={product} />
-            ))}
           </div>
         )}
       </div>
@@ -393,6 +392,7 @@ const ProductItem = ({ product }: { product: Product }) => {
                                   e.preventDefault();
                                   cart.addProduct(product);
                                   setOpen(false);
+                                  cart.handleOpen(true);
                                 }}
                                 className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                               >
