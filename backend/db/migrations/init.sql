@@ -74,7 +74,7 @@ CREATE TABLE product
     colors integer array,
     weight float, -- in kg
     price float NOT NULL, -- in dollars?
-    rating float, -- average from comments
+    rating float DEFAULT 0 NOT NULL, -- average from comments
     category_id integer NOT NULL,
     created         timestamp without time zone DEFAULT now() NOT NULL,
     updated         timestamp without time zone DEFAULT now() NOT NULL,
