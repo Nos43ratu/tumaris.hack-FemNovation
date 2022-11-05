@@ -8,6 +8,7 @@ require (
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.17.2
+	github.com/mattn/go-sqlite3 v1.14.16
 	go.uber.org/zap v1.23.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 )

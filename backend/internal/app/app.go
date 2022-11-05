@@ -12,6 +12,8 @@ import (
 
 	"go.uber.org/zap"
 
+	_ "github.com/mattn/go-sqlite3"
+
 	"tumaris.hack-FemNovation/backend/internal/delivery"
 	"tumaris.hack-FemNovation/backend/internal/repository"
 	"tumaris.hack-FemNovation/backend/internal/service"
