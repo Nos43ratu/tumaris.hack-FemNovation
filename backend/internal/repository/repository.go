@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	"go.uber.org/zap"
 	"tumaris.hack-FemNovation/backend/internal/repository/auth"
+	"tumaris.hack-FemNovation/backend/internal/repository/products"
 	"tumaris.hack-FemNovation/backend/internal/repository/order"
 	"tumaris.hack-FemNovation/backend/internal/repository/token"
 )
@@ -16,6 +17,7 @@ import (
 type Repository struct {
 	Auth  auth.Auth
 	Token token.Token
+	Products products.Products
 	Order order.Order
 }
 
@@ -37,6 +39,7 @@ func New(db *pgxpool.Pool, sqlite *sql.DB, sqliteTimeout time.Duration, logger *
 	return &Repository{
 		Auth:  auth.NewAuthRepo(logger, sqlite, sqliteTimeout),
 		Order: order.NewOrderRepo(logger, db, dbTimeout),
+		Products:  products.NewProductsRepo(logger, sqlite, sqliteTimeout),
 		Token: token.NewTokenRepo(logger, sqlite, sqliteTimeout, p1, p2),
 	}
 }
