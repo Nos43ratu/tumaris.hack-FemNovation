@@ -8,6 +8,8 @@ import (
 	"unicode"
 
 	"github.com/gin-gonic/gin"
+
+	"tumaris.hack-FemNovation/backend/internal/models"
 )
 
 func (h *Handler) OK(c *gin.Context) {
