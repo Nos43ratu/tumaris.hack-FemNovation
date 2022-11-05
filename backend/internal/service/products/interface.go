@@ -10,5 +10,5 @@ type Service interface {
 	DeleteProduct(ID int) (error)
 	GetProduct(ID int) (*models.Product, error)
 	GetProductsByCategory(ID int) ([]*models.Product, error)
-	GetProducts() ([]*models.Product, error)
+	GetProducts(filter *models.ProductFilter) ([]*models.Product, error)
 }

@@ -8,5 +8,5 @@ type Products interface {
 	GetProductByID(ID int) (*models.Product, error)
 	DeleteProduct(ID int) (error)
 	GetProductsByCategory(ID int) ([]*models.Product, error)
-	GetProducts() ([]*models.Product, error)
+	GetProducts(filter *models.ProductFilter) ([]*models.Product, error)
 }

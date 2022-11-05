@@ -120,7 +120,13 @@ func (h *Handler)GetProducts(c *gin.Context){
 	categoryID := c.Param("category_id")
 	var id int
 	if categoryID == "" {
-		res, err := h.service.Products.GetProducts()
+		search := c.Query("search") 
+		shopID := c.Query("shop_id") 
+
+		res, err := h.service.Products.GetProducts(&models.ProductFilter{
+			Search: search,
+			ShopID: shopID,
+		})
 		if err != nil {
 			if err == models.ErrNoRows {
 				c.JSON(400, CreateResponse(models.StatusError, nil, models.ErrInvalidInput))

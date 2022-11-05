@@ -36,6 +36,11 @@ type Product struct {
 	Rating      float32  `json:"rating"`
 	CategoryID  int      `json:"category_id"`
 }
+
+type ProductFilter struct {
+	Search   string      `json:"search"`
+	ShopID      string      `json:"shop_id"`
+}
 type Order struct {
 	ID           int         `json:"id,omitempty"`
 	Status       int         `json:"status"`

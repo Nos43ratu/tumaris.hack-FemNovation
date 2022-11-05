@@ -70,6 +70,6 @@ func (s *ProductsService) GetProductsByCategory(ID int) ([]*models.Product, erro
 	return s.products.GetProductsByCategory(ID)
 }
 
-func (s *ProductsService) GetProducts() ([]*models.Product, error) {
-	return s.products.GetProducts()
+func (s *ProductsService) GetProducts(filter *models.ProductFilter) ([]*models.Product, error) {
+	return s.products.GetProducts(filter)
 }

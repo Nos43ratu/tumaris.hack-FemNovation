@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"time"
+	"fmt"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -136,13 +137,28 @@ func (r *ProductsRepo) GetProductsByCategory(ID int) ([]*models.Product, error) 
 	return products, nil
 }
 
-func (r *ProductsRepo) GetProducts() ([]*models.Product, error) {
+func (r *ProductsRepo) GetProducts(filter *models.ProductFilter) ([]*models.Product, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), r.timeout)
 	defer cancel()
 
 	var products []*models.Product
 
 	query := `SELECT id, shop_id, name, description, sizes, colors, weight, price, rating, category_id FROM product`
+	
+	if filter.Search != "" {
+		query = query + fmt.Sprintf(" where (name LIKE '%%%s%%' OR description LIKE '%%%s%%')", filter.Search, filter.Search)
+	}
+	if filter.ShopID != "" {
+		if filter.Search != "" {
+			query = query + fmt.Sprintf(" and shop_id = %s", filter.ShopID)
+		}else {
+			query = query + fmt.Sprintf(" where shop_id = %s", filter.ShopID)
+		}
+
+	}
+
+	fmt.Println(query)
+	
 	rows, err := r.db.Query(ctx, query)
 	// Scan(&res.ProductID, &res.ShopID, &res.Name, &res.Description, pq.Array(&res.Sizes), &res.Colors, &res.Weight, &res.Price, &res.Rating, &res.CategoryID)
 	if err != nil {
