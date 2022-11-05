@@ -48,7 +48,7 @@ CREATE TABLE public.users
 );
 
 INSERT INTO users (email, phone_number, firstname, lastname, password, role, about_me, link_to_instagram, rating) VALUES ('Mdidara@quirduck.khs', '77017345566', 'Didara', 'Mamyrova','$2a$10$1JwL9V/KDXep5cYqNGpwJ.g2yStQrvPkw5xrCbopsu2APSjGdpH7K', 'client', 'Hi, this is me!','https://instagram/azaza', 10);
-INSERT INTO users (email, phone_number, firstname, lastname, password, role, about_me, link_to_instagram, rating) VALUES ('KLeya@gmail.com', '77017341111', 'Leya', 'Kim','$2a$10$AmWDAtt4TirVpFytlOdesuRl2cyF7z4X3sWQetBoa/yYQM/Nlu7Ei', 'shop', 'Hi, this is me!','https://instagram/azaza', 10);
+INSERT INTO users (email, phone_number, firstname, lastname, password, role, about_me, link_to_instagram, rating, shop_id) VALUES ('KLeya@gmail.com', '77017341111', 'Leya', 'Kim','$2a$10$AmWDAtt4TirVpFytlOdesuRl2cyF7z4X3sWQetBoa/yYQM/Nlu7Ei', 'shop', 'Hi, this is me!','https://instagram/azaza', 10, 1);
 
 
 CREATE TABLE category
