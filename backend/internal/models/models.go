@@ -1,5 +1,7 @@
 package models
 
+import "github.com/lib/pq"
+
 type User struct {
 	ID       int    `json:"id,omitempty"`
 	Email    string `json:"email"`
@@ -33,14 +35,14 @@ type Product struct {
 	CategoryID  int      `json:"category_id"`
 }
 type Order struct {
-	ID           int    `json:"id,omitempty"`
-	Status       int    `json:"status,omitempty"`
-	ClientID     int    `json:"client_id,omitempty"`
-	ShopID       int    `json:"shop_id,omitempty"`
-	ProductID    int    `json:"product_id,omitempty"`
-	CreatedAt    string `json:"created_at,omitempty"`
-	PayedAt      string `json:"payed_at,omitempty"`
-	PackedAt     string `json:"packed_at,omitempty"`
-	DeliveredAt  string `json:"delivered_at,omitempty"`
-	CancelReason string `json:"cancel_reason,omitempty"`
+	ID           int         `json:"id,omitempty"`
+	Status       int         `json:"status,omitempty"`
+	ClientID     int         `json:"client_id,omitempty"`
+	ShopID       int         `json:"shop_id,omitempty"`
+	ProductID    int         `json:"product_id,omitempty"`
+	CreatedAt    pq.NullTime `json:"created_at,omitempty"`
+	PayedAt      pq.NullTime `json:"payed_at,omitempty"`
+	PackedAt     pq.NullTime `json:"packed_at,omitempty"`
+	DeliveredAt  pq.NullTime `json:"delivered_at,omitempty"`
+	CancelReason string      `json:"cancel_reason,omitempty"`
 }
