@@ -1,20 +1,20 @@
 CREATE TABLE public.users
 (
     id              serial                                   PRIMARY KEY,
-    type integer NOT NULL, -- 0 for customer, 1 for seller
     email           character varying                         NOT NULL,
     phone_number    character varying                         NOT NULL, 
-    username        character varying                         NOT NULL,
     firstname    character varying   NOT NULL,
     lastname     character varying NOT NULL,
     password        character varying                         NOT NULL,
-    role            integer                     DEFAULT 0     NOT NULL,
+    role            text                                      NOT NULL,
     about_me  character varying DEFAULT ''::character varying NOT NULL,
     link_to_instagram character varying,
     rating          float                     DEFAULT 0     NOT NULL,
     created         timestamp without time zone DEFAULT now() NOT NULL,
     updated         timestamp without time zone DEFAULT now() NOT NULL
 );
+
+INSERT INTO users (email, phone_number, username, firstname, lastname, password, role, about_me, link_to_instagram, rating) VALUES ("Mdidara@quirduck.khs", "77017345566", "Didara", "Mamyrova","$2a$10$1JwL9V/KDXep5cYqNGpwJ.g2yStQrvPkw5xrCbopsu2APSjGdpH7K", "client", "Hi, this is me!","https://instagram/azaza", 10);
 
 CREATE TABLE address
 (
