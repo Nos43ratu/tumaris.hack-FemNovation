@@ -31,6 +31,7 @@ type Product struct {
 	Colors []int `json:"colors,omitempty"`
 	Weight float32 `json:"weight"`
 	Price float32 `json:"price"`
+	Rating float32 `json:"rating"`
 	CategoryID int `json:"category_id"`
 }
 type Order struct {

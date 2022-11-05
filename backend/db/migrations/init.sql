@@ -62,6 +62,8 @@ CREATE TABLE product
     price float NOT NULL, -- in dollars?
     rating float -- average from comments
     category_id int NOT NULL,
+    created         timestamp without time zone DEFAULT now() NOT NULL,
+    updated         timestamp without time zone DEFAULT now() NOT NULL
     CONSTRAINT fk_shop
         FOREIGN KEY (shop_id) REFERENCES shop(id),
     CONSTRAINT fk_category
