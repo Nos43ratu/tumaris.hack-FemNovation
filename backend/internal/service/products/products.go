@@ -57,3 +57,7 @@ func (s *ProductsService) UpdateProduct(product *models.Product) (int, error) {
 	}
 	return s.products.UpdateProduct(product)
 }
+
+func (s *ProductsService) DeleteProduct(ID int) error {
+	return s.products.DeleteProduct(ID)
+}

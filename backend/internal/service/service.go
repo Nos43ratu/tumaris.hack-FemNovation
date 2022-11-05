@@ -19,7 +19,7 @@ type Service struct {
 func New(repos *repository.Repository, hasher *hash.BcryptHasher, accessTTL time.Duration, refreshTTL time.Duration) *Service {
 	return &Service{
 		Auth: auth.NewAuthService(repos.Auth, hasher, repos.Token, accessTTL, refreshTTL),
-//		Products: products.NewProductsService(repos.Products),
+		Products: products.NewProductsService(repos.Products),
 		Order: order.NewOrderService(repos.Order),
 	}
 }

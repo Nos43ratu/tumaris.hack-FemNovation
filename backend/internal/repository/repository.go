@@ -39,7 +39,7 @@ func New(db *pgxpool.Pool, sqlite *sql.DB, sqliteTimeout time.Duration, logger *
 	return &Repository{
 		Auth:  auth.NewAuthRepo(logger, sqlite, sqliteTimeout),
 		Order: order.NewOrderRepo(logger, db, dbTimeout),
-		Products:  products.NewProductsRepo(logger, sqlite, sqliteTimeout),
+		Products:  products.NewProductsRepo(logger, db, sqliteTimeout),
 		Token: token.NewTokenRepo(logger, sqlite, sqliteTimeout, p1, p2),
 	}
 }
