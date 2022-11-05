@@ -2,6 +2,7 @@ package order
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/jackc/pgx/v4"
@@ -24,8 +25,78 @@ func NewOrderRepo(logger *zap.SugaredLogger, db *pgxpool.Pool, timeout time.Dura
 	}
 }
 
-func (o *OrderRepo) GetAll() ([]*models.Order, error) {
-	return nil, nil
+func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), o.timeout)
+	defer cancel()
+
+	role := ""
+	shopID := 0
+	query := `SELECT role, shop_id FROM users WHERE id=$1`
+	err := o.db.QueryRow(ctx, query, user.ID).Scan(&role, &shopID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			o.logger.Errorf("invite does not exist: %s", err)
+			return nil, models.ErrInviteDoesNotExist
+		}
+		o.logger.Errorf("db error: %s", err)
+		return nil, models.ErrDBConnection
+	}
+
+	if role == "client" {
+		query = `SELECT * FROM orders WHERE client_id=$1`
+
+		rows, err := o.db.Query(ctx, query, user.ID)
+		if err != nil {
+			o.logger.Errorf("db error: %s", err)
+			return nil, models.ErrDBConnection
+		}
+		defer rows.Close()
+
+		var orders []*models.Order
+		for rows.Next() {
+			var order *models.Order
+			err = rows.Scan(&order)
+			if err != nil {
+				o.logger.Errorf("db error: %s", err)
+				return nil, models.ErrDBConnection
+			}
+			orders = append(orders, order)
+		}
+
+		if err := rows.Err(); err != nil {
+			o.logger.Errorf("db error: %s", err)
+			return nil, models.ErrDBConnection
+		}
+
+		return orders, nil
+	} else {
+		query = `SELECT * FROM orders WHERE shop_id=$1`
+
+		rows, err := o.db.Query(ctx, query, shopID)
+		if err != nil {
+			o.logger.Errorf("db error: %s", err)
+			return nil, models.ErrDBConnection
+		}
+		defer rows.Close()
+
+		var orders []*models.Order
+		for rows.Next() {
+			var order *models.Order
+			err = rows.Scan(&order)
+			if err != nil {
+				o.logger.Errorf("db error: %s", err)
+				return nil, models.ErrDBConnection
+			}
+			orders = append(orders, order)
+		}
+
+		if err := rows.Err(); err != nil {
+			o.logger.Errorf("db error: %s", err)
+			return nil, models.ErrDBConnection
+		}
+
+		return orders, nil
+	}
 }
 
 func (o *OrderRepo) Create(order *models.Order) error {

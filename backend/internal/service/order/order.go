@@ -23,6 +23,6 @@ func (o *OrderService) Update(order *models.Order) error {
 	return o.Order.Update(order)
 }
 
-func (o *OrderService) GetAll() ([]*models.Order, error) {
-	return o.Order.GetAll()
+func (o *OrderService) GetAll(user *models.User) ([]*models.Order, error) {
+	return o.Order.GetAll(user)
 }
