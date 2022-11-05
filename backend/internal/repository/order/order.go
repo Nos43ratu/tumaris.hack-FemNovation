@@ -2,8 +2,8 @@ package order
 
 import (
 	"context"
+	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v4"
@@ -56,11 +56,15 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 		var orders []*models.Order
 		for rows.Next() {
 			var order *models.Order
-			err = rows.Scan(&order.ID, &order.Status, &order.ClientID, &order.ShopID, &order.ProductID, &order.CreatedAt, &order.PayedAt, &order.PackedAt, &order.DeliveredAt, &order.CancelReason)
+
+			reason := &sql.NullString{}
+			err = rows.Scan(&order.ID, &order.Status, &order.ClientID, &order.ShopID, &order.ProductID, &order.CreatedAt, &order.PayedAt, &order.PackedAt, &order.DeliveredAt, &reason)
 			if err != nil {
 				o.logger.Errorf("db error: %s", err)
 				return nil, models.ErrDBConnection
 			}
+
+			order.CancelReason = reason.String
 			orders = append(orders, order)
 		}
 
@@ -84,11 +88,15 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 
 		for rows.Next() {
 			order := &models.Order{}
-			err = rows.Scan(&order.ID, &order.Status, &order.ClientID, &order.ShopID, &order.ProductID, &order.CreatedAt, &order.PayedAt, &order.PackedAt, &order.DeliveredAt, &order.CancelReason)
+
+			reason := &sql.NullString{}
+			err = rows.Scan(&order.ID, &order.Status, &order.ClientID, &order.ShopID, &order.ProductID, &order.CreatedAt, &order.PayedAt, &order.PackedAt, &order.DeliveredAt, &reason)
 			if err != nil {
 				o.logger.Errorf("db error: %s", err)
 				return nil, models.ErrDBConnection
 			}
+
+			order.CancelReason = reason.String
 			orders = append(orders, order)
 		}
 
@@ -159,10 +167,8 @@ func (o *OrderRepo) Update(order *models.Order) error {
 		return models.ErrDBConnection
 	}
 
-	val := fmt.Sprintf("%s", order.CancelReason.String)
-
 	query := `UPDATE orders set status=$1 and cancel_reason=$2 WHERE id=$3`
-	_, err = tx.Exec(ctx, query, order.Status, val, order.ID)
+	_, err = tx.Exec(ctx, query, order.Status, order.CancelReason, order.ID)
 	if err != nil {
 		errTX := tx.Rollback(ctx)
 		if errTX != nil {
