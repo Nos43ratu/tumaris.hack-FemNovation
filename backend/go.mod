@@ -3,6 +3,7 @@ module tumaris.hack-FemNovation/backend
 go 1.17
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/jackc/pgx/v4 v4.17.2
