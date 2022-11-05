@@ -80,8 +80,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	api.GET("/products")
 
-	api.POST("/orders/:order_id", h.CreateOrder)
-	api.GET("/orders/:order_id")
+	api.POST("/orders", h.CreateOrder)
+	api.POST("/orders/:order_id", h.UpdateOrder)
+	api.GET("/orders", h.GetAllOrders)
+	api.GET("/orders/:order_id", h.GetOrder)
 
 	return router
 }

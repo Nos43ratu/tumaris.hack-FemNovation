@@ -18,3 +18,15 @@ func NewOrderService(order order.Order) Service {
 func (o *OrderService) Create(order *models.Order) error {
 	return o.Order.Create(order)
 }
+
+func (o *OrderService) Update(orderID string, order *models.Order) error {
+	return o.Order.Update(orderID, order)
+}
+
+func (o *OrderService) GetAll(user *models.User) ([]*models.Order, error) {
+	return o.Order.GetAll(user)
+}
+
+func (o *OrderService) GetByID(orderID string) (*models.Order, error) {
+	return o.Order.GetByID(orderID)
+}

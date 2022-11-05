@@ -69,7 +69,7 @@ func (h *Handler) SignIn(c *gin.Context) {
 	)
 
 	h.logger.Infof("[SUCCESS]: signed in %s", input.Email)
-	c.JSON(200, CreateResponse(models.StatusOK, user.Role, nil))
+	c.JSON(200, CreateResponse(models.StatusOK, user, nil))
 }
 
 func invalidEmail(email string) bool {

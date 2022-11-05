@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"github.com/lib/pq"
+)
 
 type User struct {
 	ID       int    `json:"id,omitempty"`
@@ -23,26 +25,26 @@ type Session struct {
 }
 
 type Product struct {
-	ProductID int `json:"id"`
-	ShopID int `json:"shop_id"`
-	Name    string `json:"name"`
-	Description string `json:"description"`
-	Sizes     []string `json:"sizes,omitempty"`
-	Colors []int `json:"colors,omitempty"`
-	Weight float64 `json:"weight"`
-	Price float64 `json:"price"`
-	Rating float64 `json:"rating"`
-	CategoryID int `json:"category_id"`
+	ProductID   int      `json:"id"`
+	ShopID      int      `json:"shop_id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Sizes       []string `json:"sizes,omitempty"`
+	Colors      []int    `json:"colors,omitempty"`
+	Weight      float32  `json:"weight"`
+	Price       float32  `json:"price"`
+	Rating      float32  `json:"rating"`
+	CategoryID  int      `json:"category_id"`
 }
 type Order struct {
-	ID           int       `json:"id,omitempty"`
-	Status       int       `json:"status,omitempty"`
-	ClientID     int       `json:"client_id,omitempty"`
-	ShopID       int       `json:"shop_id,omitempty"`
-	ProductID    int       `json:"product_id,omitempty"`
-	CreatedAt    time.Time `json:"created_at,omitempty"`
-	PayedAt      time.Time `json:"payed_at,omitempty"`
-	PackedAt     time.Time `json:"packed_at,omitempty"`
-	DeliveredAt  time.Time `json:"delivered_at,omitempty"`
-	CancelReason string    `json:"cancel_reason,omitempty"`
+	ID           int         `json:"id,omitempty"`
+	Status       int         `json:"status"`
+	ClientID     int         `json:"client_id,omitempty"`
+	ShopID       int         `json:"shop_id,omitempty"`
+	ProductID    int         `json:"product_id,omitempty"`
+	CreatedAt    pq.NullTime `json:"created_at,omitempty"`
+	PayedAt      pq.NullTime `json:"payed_at,omitempty"`
+	PackedAt     pq.NullTime `json:"packed_at,omitempty"`
+	DeliveredAt  pq.NullTime `json:"delivered_at,omitempty"`
+	CancelReason string      `json:"cancel_reason,omitempty"`
 }
