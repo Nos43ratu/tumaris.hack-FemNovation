@@ -1,7 +1,7 @@
 import React from "react";
 
-const FindOrder = () => {
+const Cabinet = () => {
   return <div></div>;
 };
 
-export default FindOrder;
+export default Cabinet;
