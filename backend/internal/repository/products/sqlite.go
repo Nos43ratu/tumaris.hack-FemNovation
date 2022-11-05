@@ -87,7 +87,6 @@ func (r *ProductsRepo) GetProductByID(ID int) (*models.Product, error) {
 		}
 		return nil, err
 	}
-
 	return res, nil
 }
 
@@ -107,4 +106,60 @@ func (r *ProductsRepo) DeleteProduct(ID int) (error) {
 	}
 
 	return nil
+}
+
+func (r *ProductsRepo) GetProductsByCategory(ID int) ([]*models.Product, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), r.timeout)
+	defer cancel()
+
+	var products []*models.Product
+
+	query := `SELECT id, shop_id, name, description, sizes, colors, weight, price, rating, category_id FROM product where category_id = $1`
+	rows, err := r.db.Query(ctx, query, ID)
+	// Scan(&res.ProductID, &res.ShopID, &res.Name, &res.Description, pq.Array(&res.Sizes), &res.Colors, &res.Weight, &res.Price, &res.Rating, &res.CategoryID)
+	if err != nil {
+		r.logger.Errorf("db error: %s", err)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, models.ErrNoRows
+		}
+		return nil, err
+	}
+	for rows.Next() {
+		res := &models.Product{}
+		err := rows.Scan(&res.ProductID, &res.ShopID, &res.Name, &res.Description, pq.Array(&res.Sizes), &res.Colors, &res.Weight, &res.Price, &res.Rating, &res.CategoryID)
+		if err != nil {
+			r.logger.Errorf("db error: %s", err)
+			return nil, models.ErrDBConnection
+		}
+		products = append(products, res)
+	}
+	return products, nil
+}
+
+func (r *ProductsRepo) GetProducts() ([]*models.Product, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), r.timeout)
+	defer cancel()
+
+	var products []*models.Product
+
+	query := `SELECT id, shop_id, name, description, sizes, colors, weight, price, rating, category_id FROM product`
+	rows, err := r.db.Query(ctx, query)
+	// Scan(&res.ProductID, &res.ShopID, &res.Name, &res.Description, pq.Array(&res.Sizes), &res.Colors, &res.Weight, &res.Price, &res.Rating, &res.CategoryID)
+	if err != nil {
+		r.logger.Errorf("db error: %s", err)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, models.ErrNoRows
+		}
+		return nil, err
+	}
+	for rows.Next() {
+		res := &models.Product{}
+		err := rows.Scan(&res.ProductID, &res.ShopID, &res.Name, &res.Description, pq.Array(&res.Sizes), &res.Colors, &res.Weight, &res.Price, &res.Rating, &res.CategoryID)
+		if err != nil {
+			r.logger.Errorf("db error: %s", err)
+			return nil, models.ErrDBConnection
+		}
+		products = append(products, res)
+	}
+	return products, nil
 }
