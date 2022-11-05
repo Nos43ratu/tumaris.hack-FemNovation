@@ -18,3 +18,11 @@ func NewOrderService(order order.Order) Service {
 func (o *OrderService) Create(order *models.Order) error {
 	return o.Order.Create(order)
 }
+
+func (o *OrderService) Update(order *models.Order) error {
+	return o.Order.Update(order)
+}
+
+func (o *OrderService) GetAll() ([]*models.Order, error) {
+	return o.Order.GetAll()
+}

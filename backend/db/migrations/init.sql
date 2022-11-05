@@ -36,7 +36,6 @@ CREATE TABLE address
 
 INSERT INTO address (country, region, city, street_name, street_number, building, postal_code, flat_number, floor) VALUES ("Kazakhstan", "Astana", "Astana", "Mangilik-el", "1", "1/2", "010000", "12", "12")
 
-
 CREATE TABLE category
 (
     id serial PRIMARY KEY,
