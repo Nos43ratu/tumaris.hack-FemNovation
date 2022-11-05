@@ -19,3 +19,6 @@ type Session struct {
 	AccessToken   string
 	RefreshExpire int64
 }
+
+type Order struct {
+}

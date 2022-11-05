@@ -79,7 +79,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	api.GET("/products")
 
-	api.POST("/categories/:category_id/products/:product_id/order")
+	api.POST("/orders/:order_id", h.CreateOrder)
 	api.GET("/orders/:order_id")
 
 	return router
