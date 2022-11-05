@@ -3,6 +3,7 @@ package order
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v4"
@@ -158,11 +159,7 @@ func (o *OrderRepo) Update(order *models.Order) error {
 		return models.ErrDBConnection
 	}
 
-	val, err := order.CancelReason.Value()
-	if err != nil {
-		o.logger.Errorf("transaction error: %s", err)
-		return models.ErrDBConnection
-	}
+	val := fmt.Sprintf("%s", order.CancelReason.String)
 
 	query := `UPDATE orders set status=$1 and cancel_reason=$2 WHERE id=$3`
 	_, err = tx.Exec(ctx, query, order.Status, val, order.ID)
