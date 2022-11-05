@@ -100,6 +100,21 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 	}
 }
 
+func (o *OrderRepo) GetByID(orderID string) (*models.Order, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), o.timeout)
+	defer cancel()
+
+	order := &models.Order{}
+	query := `SELECT * FROM orders WHERE id=$1`
+	err := o.db.QueryRow(ctx, query, orderID).Scan(&order.ID, &order.Status, &order.ClientID, &order.ShopID, &order.ProductID, &order.CreatedAt, &order.PayedAt, &order.PackedAt, &order.DeliveredAt, &order.CancelReason)
+	if err != nil {
+		o.logger.Errorf("db error: %s", err)
+		return nil, models.ErrDBConnection
+	}
+
+	return order, nil
+}
+
 func (o *OrderRepo) Create(order *models.Order) error {
 	ctx, cancel := context.WithTimeout(context.Background(), o.timeout)
 	defer cancel()

@@ -26,3 +26,7 @@ func (o *OrderService) Update(order *models.Order) error {
 func (o *OrderService) GetAll(user *models.User) ([]*models.Order, error) {
 	return o.Order.GetAll(user)
 }
+
+func (o *OrderService) GetByID(orderID string) (*models.Order, error) {
+	return o.Order.GetByID(orderID)
+}

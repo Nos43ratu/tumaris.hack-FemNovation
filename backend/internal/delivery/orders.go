@@ -62,3 +62,17 @@ func (h *Handler) GetAllOrders(c *gin.Context) {
 	h.logger.Infof("[SUCCESS]: getting all orders %+v", orders)
 	c.JSON(200, CreateResponse(models.StatusOK, orders, nil))
 }
+
+func (h *Handler) GetOrder(c *gin.Context) {
+	orderID := c.Param("order_id")
+
+	order, err := h.service.Order.GetByID(orderID)
+	if err != nil {
+		h.logger.Errorf("[ERROR]: error getting one order", err)
+		c.JSON(500, CreateResponse(models.StatusError, nil, models.ErrInternalServer))
+		return
+	}
+
+	h.logger.Infof("[SUCCESS]: getting one order %+v", order)
+	c.JSON(200, CreateResponse(models.StatusOK, order, nil))
+}
