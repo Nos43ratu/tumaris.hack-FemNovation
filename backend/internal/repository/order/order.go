@@ -64,7 +64,9 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 				return nil, models.ErrDBConnection
 			}
 
-			order.CancelReason = reason.String
+			if reason.Valid {
+				order.CancelReason = reason.String
+			}
 			orders = append(orders, order)
 		}
 
@@ -96,7 +98,10 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 				return nil, models.ErrDBConnection
 			}
 
-			order.CancelReason = reason.String
+			if reason.Valid {
+				order.CancelReason = reason.String
+			}
+
 			orders = append(orders, order)
 		}
 
