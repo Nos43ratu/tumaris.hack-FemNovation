@@ -12,7 +12,7 @@ import (
 func DBConnection(sugar *zap.SugaredLogger) (*pgxpool.Pool, error) {
 	username := "postgres"
 	password := "postgres"
-	host := "localhost"
+	host := "172.0.0.2"
 	port := 5432
 	dbname := "tumaris"
 	sslmode := "disable"
