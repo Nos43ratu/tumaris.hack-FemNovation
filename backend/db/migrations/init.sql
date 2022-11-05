@@ -30,6 +30,12 @@ CREATE TABLE address
     floor character varying
 );
 
+CREATE TABLE category
+(
+    id serial PRIMARY KEY,
+    name character varying NOT NULL
+);
+
 CREATE TABLE shop
 (
     id              serial                                   PRIMARY KEY,
@@ -47,6 +53,7 @@ CREATE TABLE shop
 CREATE TABLE product
 (
     id serial PRIMARY KEY,
+    shop_id integer NOT NULL,
     name    character varying   NOT NULL,
     description    character varying   NOT NULL,
     sizes text[], 
@@ -54,6 +61,11 @@ CREATE TABLE product
     weight float, -- in kg
     price float NOT NULL, -- in dollars?
     rating float -- average from comments
+    category_id int NOT NULL,
+    CONSTRAINT fk_shop
+        FOREIGN KEY (shop_id) REFERENCES shop(id),
+    CONSTRAINT fk_category
+        FOREIGN KEY (category_id) REFERENCES category(id),
 );
 
 CREATE TABLE public.comment
