@@ -44,7 +44,7 @@ func Run() {
 	}
 	defer db.Close()
 
-	hasher := hash.NewByCryptHasher("fjdskljdsfldsfdsjldsjflie4r")
+	hasher := hash.NewByCryptHasher("67072341-eb28-4174-a01f-baf72c40b966")
 
 	repositories := repository.New(db, sqlite, 10*time.Second, sugar)
 	service := service.New(repositories, hasher, 15*time.Hour, 15*time.Hour)

@@ -82,3 +82,23 @@ CREATE TABLE public.comment
     CONSTRAINT fk_users_1
         FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+CREATE TABLE public.orders
+(
+    id serial PRIMARY KEY,
+    status integer not null,
+    client_id integer,
+    shop_id integer,
+    product_id integer,
+    created_at    timestamp without time zone DEFAULT now() NOT NULL,
+    payed_at timestamp without time zone,
+    packed_at timestamp without time zone,
+    delivered_at timestamp without time zone,
+    cancel_reason text,
+    CONSTRAINT fk_client_id
+        FOREIGN KEY (client_id) REFERENCES users(id),
+    CONSTRAINT fk_shop_id
+        FOREIGN KEY (shop_id) REFERENCES shop(id),
+    CONSTRAINT fk_product_id
+        FOREIGN KEY (product_id) REFERENCES product(id),
+)

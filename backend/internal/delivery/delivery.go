@@ -37,7 +37,7 @@ type Refresh struct {
 
 func NewHandler(services *service.Service, sugar *zap.SugaredLogger) *Handler {
 	token := &Token{
-		Pepper: "fjdskljdsfldsfdsjldsjflie4r",
+		Pepper: "67072341-eb28-4174-a01f-baf72c40b966",
 		Access: &Access{
 			TTL: 15 * time.Hour,
 		},
@@ -81,7 +81,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	api.GET("/products")
 
-	api.POST("/categories/:category_id/products/:product_id/order")
+	api.POST("/orders/:order_id", h.CreateOrder)
 	api.GET("/orders/:order_id")
 
 	return router
