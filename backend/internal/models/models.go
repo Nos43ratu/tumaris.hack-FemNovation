@@ -11,3 +11,11 @@ type Tokens struct {
 	Access  string `json:"access_token,omitempty"`
 	Refresh string `json:"refresh_token,omitempty"`
 }
+
+type Session struct {
+	ID            int
+	UserID        int
+	RefreshToken  string
+	AccessToken   string
+	RefreshExpire int64
+}

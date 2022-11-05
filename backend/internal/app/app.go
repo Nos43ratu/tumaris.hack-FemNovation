@@ -15,6 +15,7 @@ import (
 	"tumaris.hack-FemNovation/backend/internal/delivery"
 	"tumaris.hack-FemNovation/backend/internal/repository"
 	"tumaris.hack-FemNovation/backend/internal/service"
+	"tumaris.hack-FemNovation/backend/pkg/hash"
 )
 
 func Run() {
@@ -27,12 +28,12 @@ func Run() {
 	sugar := logger.Sugar()
 	defer sugar.Sync()
 
-	rdb, err := repository.RedisConn(sugar)
+	sqlite, err := repository.SqliteConnection()
 	if err != nil {
-		sugar.Errorf("Cannot connect to redis: %v", err)
+		sugar.Error("sqlite connection error: ", err)
 		return
 	}
-	defer rdb.Close()
+	defer sqlite.Close()
 
 	db, err := repository.DBConnection(sugar)
 	if err != nil {
@@ -41,7 +42,9 @@ func Run() {
 	}
 	defer db.Close()
 
-	repositories := repository.New(db, rdb, sugar)
+	hasher := hash.NewByCryptHasher("fjdskljdsfldsfdsjldsjflie4r")
+
+	repositories := repository.New(db, sqlite, sugar)
 	service := service.New(repositories)
 	handlers := delivery.NewHandler(service, sugar)
 

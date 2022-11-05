@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"tumaris.hack-FemNovation/backend/internal/repository"
 	"tumaris.hack-FemNovation/backend/internal/service/auth"
 )
@@ -9,6 +11,8 @@ type Service struct {
 	Auth auth.Service
 }
 
-func New(repos *repository.Repository) *Service {
-	return &Service{}
+func New(repos *repository.Repository, hasher *hash.BcryptHasher, accessTTL time.Duration, refreshTTL time.Duration) *Service {
+	return &Service{
+		Auth: newAuthService(repository.Auth, hasher, repository.Token, accessTTL, refreshTTL),
+	}
 }

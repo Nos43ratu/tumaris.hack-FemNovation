@@ -1,6 +1,8 @@
 package delivery
 
 import (
+	"time"
+
 	"go.uber.org/zap"
 
 	"github.com/gin-gonic/gin"
@@ -10,12 +12,49 @@ import (
 type Handler struct {
 	service *service.Service
 	logger  *zap.SugaredLogger
+
+	tokenInfo *Token
+}
+
+type Token struct {
+	Pepper     string
+	Access     *Access
+	Refresh    *Refresh
+	Domain     string
+	Secure     bool
+	HttpOnly   bool
+	PrivateKey string
+	PublicKey  string
+}
+
+type Access struct {
+	TTL time.Duration
+}
+
+type Refresh struct {
+	TTL time.Duration
 }
 
 func NewHandler(services *service.Service, sugar *zap.SugaredLogger) *Handler {
+	token := &Token{
+		Pepper: "fjdskljdsfldsfdsjldsjflie4r",
+		Access: &Access{
+			TTL: 10 * time.Minute,
+		},
+		Refresh: &Refresh{
+			TTL: 10 * time.Minute,
+		},
+		Domain:     "kustoma.shop",
+		Secure:     false,
+		HttpOnly:   true,
+		PrivateKey: "",
+		PublicKey:  "",
+	}
+
 	return &Handler{
-		service: services,
-		logger:  sugar,
+		service:   services,
+		logger:    sugar,
+		tokenInfo: token,
 	}
 }
 
