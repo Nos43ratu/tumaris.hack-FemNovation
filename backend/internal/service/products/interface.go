@@ -6,4 +6,5 @@ import (
 
 type Service interface {
 	CreateProduct(product *models.Product) (int, error)
+	UpdateProduct(product *models.Product) (int, error)
 }

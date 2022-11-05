@@ -45,5 +45,6 @@ func (h *Handler)CreateOrUpdateProduct(c *gin.Context){
 		c.JSON(500, CreateResponse(models.StatusError, nil, models.ErrInternalServer))
 		return
 	}
+	
 	// here update product
 }
