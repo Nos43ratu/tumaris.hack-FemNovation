@@ -167,7 +167,7 @@ func (o *OrderRepo) Update(order *models.Order) error {
 		return models.ErrDBConnection
 	}
 
-	query := `UPDATE orders set status=$1 and cancel_reason=$2 WHERE id=$3`
+	query := `UPDATE orders set status=$1, cancel_reason=$2 WHERE id=$3`
 	_, err = tx.Exec(ctx, query, order.Status, order.CancelReason, order.ID)
 	if err != nil {
 		errTX := tx.Rollback(ctx)
