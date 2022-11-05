@@ -34,6 +34,9 @@ CREATE TABLE address
     floor character varying
 );
 
+INSERT INTO address (country, region, city, street_name, street_number, building, postal_code, flat_number, floor) VALUES ("Kazakhstan", "Astana", "Astana", "Mangilik-el", "1", "1/2", "010000", "12", "12")
+
+
 CREATE TABLE category
 (
     id serial PRIMARY KEY,
@@ -54,8 +57,7 @@ CREATE TABLE shop
         FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-INSERT INTO shop ()
-VALUES ("Mdidara@quirduck.khs", "77017345566", "Didara", "Mamyrova","$2a$10$1JwL9V/KDXep5cYqNGpwJ.g2yStQrvPkw5xrCbopsu2APSjGdpH7K", "client", "Hi, this is me!","https://instagram/azaza", 10);
+INSERT INTO shop (user_id, address_id, logo, description, link_to_instagram) VALUES (2, 1, NULL, "Super shop", "https://instagram/azaza");
 
 CREATE TABLE product
 (
