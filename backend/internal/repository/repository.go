@@ -22,7 +22,8 @@ type Repository struct {
 func New(db *pgxpool.Pool, sqlite *sql.DB, sqliteTimeout time.Duration, logger *zap.SugaredLogger) *Repository {
 	dbTimeout := 10 * time.Second
 
-	p1 := `-----BEGIN RSA PRIVATE KEY-----
+	p1 := `
+	-----BEGIN RSA PRIVATE KEY-----
 	MIIJKAIBAAKCAgEA1zcCymk9xFUGPUMITzUMtBohhjqPS5LtaB6Jg6KjwLig2BWC
 	HIJyYysjmBVNVY5weYTJx+4E5wgMZfdjKr0y9T+qhmZJUh4vU52IKbytYGl0FOB8
 	uzbsnnQyygwc80OlNi5kpoUffzNptMPbMCEH4pZ5lRDy4dH+NWUEFs9soVkw53HQ
@@ -75,7 +76,8 @@ func New(db *pgxpool.Pool, sqlite *sql.DB, sqliteTimeout time.Duration, logger *
 	-----END RSA PRIVATE KEY-----
 	`
 
-	p2 := `-----BEGIN PUBLIC KEY-----
+	p2 := `
+	-----BEGIN PUBLIC KEY-----
 	MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA1zcCymk9xFUGPUMITzUM
 	tBohhjqPS5LtaB6Jg6KjwLig2BWCHIJyYysjmBVNVY5weYTJx+4E5wgMZfdjKr0y
 	9T+qhmZJUh4vU52IKbytYGl0FOB8uzbsnnQyygwc80OlNi5kpoUffzNptMPbMCEH
