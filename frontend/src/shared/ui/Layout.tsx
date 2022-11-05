@@ -1,11 +1,15 @@
 import React, { Fragment, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Dialog, Popover, Transition } from "@headlessui/react";
 import {
   ShoppingBagIcon,
   BellIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import create from "zustand";
+import { StarIcon } from "@heroicons/react/20/solid";
+import clsx from "clsx";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 const user = {
   name: "Whitney Francis",
@@ -30,8 +34,7 @@ const Layout = () => {
               <div className="flex flex-shrink-0 items-center">
                 <a href="#">
                   <svg
-                    width="200"
-                    height="26"
+                    className="h-[20px] w-[150px] md:h-[26px] md:w-[200px]"
                     viewBox="0 0 556 74"
                     fill="#2563eb"
                     xmlns="http://www.w3.org/2000/svg"
@@ -61,35 +64,42 @@ const Layout = () => {
   );
 };
 
+export const useCartStore = create<{
+  products: Product[];
+  addProduct: (product: Product) => void;
+  removeProduct: (id: number) => void;
+}>((set, get) => ({
+  products: [],
+  addProduct: (product: Product) => {
+    set((state) => {
+      const products = [...state.products];
+      const index = products.findIndex((p) => p.id === product.id);
+      if (index === -1) {
+        products.push(product);
+      }
+      return { products };
+    });
+  },
+  removeProduct: (id: number) => {
+    set((state) => {
+      const products = [...state.products];
+
+      return { products: products.filter((p) => p.id !== id) };
+    });
+  },
+}));
+
 const Cart = () => {
+  const navigate = useNavigate();
+  const cart = useCartStore();
+  const [parent] = useAutoAnimate<HTMLUListElement | null>();
+
   const [open, setOpen] = useState(false);
 
-  const products = [
-    {
-      id: 1,
-      name: "Throwback Hip Bag",
-      href: "#",
-      color: "Salmon",
-      price: "$90.00",
-      quantity: 1,
-      imageSrc:
-        "https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg",
-      imageAlt:
-        "Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt.",
-    },
-    {
-      id: 2,
-      name: "Medium Stuff Satchel",
-      href: "#",
-      color: "Blue",
-      price: "$32.00",
-      quantity: 1,
-      imageSrc:
-        "https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-02.jpg",
-      imageAlt:
-        "Front of satchel with blue canvas body, black straps and handle, drawstring top, and front zipper pouch.",
-    },
-  ];
+  const handleCheckout = () => {
+    console.log("checkout");
+    navigate("/cabinet");
+  };
 
   return (
     <>
@@ -98,7 +108,6 @@ const Cart = () => {
           onClick={() => setOpen(true)}
           className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
         >
-          <span className="sr-only">Open main menu</span>
           <ShoppingBagIcon className="block h-6 w-6" aria-hidden="true" />
         </button>
       </div>
@@ -130,10 +139,10 @@ const Cart = () => {
                 >
                   <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
                     <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
-                      <div className="flex-1 overflow-y-auto py-6 px-4 sm:px-6">
+                      <div className="flex flex-1 flex-col overflow-y-auto py-6 px-4 sm:px-6">
                         <div className="flex items-start justify-between">
                           <Dialog.Title className="text-lg font-medium text-gray-900">
-                            Shopping cart
+                            Корзина
                           </Dialog.Title>
                           <div className="ml-3 flex h-7 items-center">
                             <button
@@ -150,88 +159,120 @@ const Cart = () => {
                           </div>
                         </div>
 
-                        <div className="mt-8">
-                          <div className="flow-root">
-                            <ul
-                              role="list"
-                              className="-my-6 divide-y divide-gray-200"
-                            >
-                              {products.map((product) => (
-                                <li key={product.id} className="flex py-6">
-                                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                                    <img
-                                      src={product.imageSrc}
-                                      alt={product.imageAlt}
-                                      className="h-full w-full object-cover object-center"
-                                    />
-                                  </div>
-
-                                  <div className="ml-4 flex flex-1 flex-col">
-                                    <div>
-                                      <div className="flex justify-between text-base font-medium text-gray-900">
-                                        <h3>
-                                          <a href={product.href}>
-                                            {product.name}
-                                          </a>
-                                        </h3>
-                                        <p className="ml-4">{product.price}</p>
-                                      </div>
-                                      <p className="mt-1 text-sm text-gray-500">
-                                        {product.color}
-                                      </p>
+                        <div className="mt-8 h-full">
+                          <div className="flow-root h-full">
+                            {cart.products.length === 0 ? (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <span className="text-base font-medium text-gray-900">
+                                  Ваша корзина пуста =_=
+                                </span>
+                              </div>
+                            ) : (
+                              <ul
+                                role="list"
+                                className="-my-6 divide-y divide-gray-200"
+                                ref={parent}
+                              >
+                                {cart.products.map((product) => (
+                                  <li key={product.id} className="flex py-6">
+                                    <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                                      <img
+                                        src={product.imageSrc}
+                                        className="h-full w-full object-cover object-center"
+                                      />
                                     </div>
-                                    <div className="flex flex-1 items-end justify-between text-sm">
-                                      <p className="text-gray-500">
-                                        Qty {product.quantity}
-                                      </p>
 
-                                      <div className="flex">
-                                        <button
-                                          type="button"
-                                          className="font-medium text-indigo-600 hover:text-indigo-500"
+                                    <div className="ml-4 flex flex-1 flex-col">
+                                      <div>
+                                        <div className="flex justify-between text-base font-medium text-gray-900">
+                                          <h3>
+                                            <span>{product.name}</span>
+                                          </h3>
+                                          <p className="ml-4 flex items-center ">
+                                            {product.price}{" "}
+                                            <img
+                                              className="object-fit h-2.5 w-2"
+                                              src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Tenge_symbol.svg"
+                                              alt=""
+                                            />
+                                          </p>
+                                        </div>
+                                        <div className="mt-1">
+                                          <p className="text-xs line-clamp-2">
+                                            {product.description}
+                                          </p>
+                                        </div>
+                                        <div
+                                          aria-labelledby="information-heading"
+                                          className="mt-2 flex justify-between"
                                         >
-                                          Remove
-                                        </button>
+                                          <div className="flex items-center justify-between">
+                                            <div className="flex items-center">
+                                              {[0, 1, 2, 3, 4].map((rating) => (
+                                                <StarIcon
+                                                  key={rating}
+                                                  className={clsx(
+                                                    product.rating > rating
+                                                      ? "text-yellow-500"
+                                                      : "text-gray-200",
+                                                    "h-4 w-4 flex-shrink-0"
+                                                  )}
+                                                  aria-hidden="true"
+                                                />
+                                              ))}
+                                            </div>
+                                          </div>
+                                          <div className="flex text-sm">
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                cart.removeProduct(product.id);
+                                              }}
+                                              className="font-medium text-indigo-600 hover:text-indigo-500"
+                                            >
+                                              удалить
+                                            </button>
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
                           </div>
                         </div>
                       </div>
 
-                      <div className="border-t border-gray-200 py-6 px-4 sm:px-6">
-                        <div className="flex justify-between text-base font-medium text-gray-900">
-                          <p>Subtotal</p>
-                          <p>$262.00</p>
-                        </div>
-                        <p className="mt-0.5 text-sm text-gray-500">
-                          Shipping and taxes calculated at checkout.
-                        </p>
-                        <div className="mt-6">
-                          <a
-                            href="#"
-                            className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
-                          >
-                            Checkout
-                          </a>
-                        </div>
-                        <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
-                          <p>
-                            or
+                      {cart.products.length > 0 && (
+                        <div className="border-t border-gray-200 py-6 px-4 sm:px-6">
+                          <div className="flex justify-between text-base font-medium text-gray-900">
+                            <p>Общая стоимость</p>
+                            <p className="flex items-center">
+                              {cart?.products?.reduce(
+                                (prev, curr) => prev + parseInt(curr.price),
+                                0
+                              )}{" "}
+                              <img
+                                className="object-fit h-2.5 w-2"
+                                src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Tenge_symbol.svg"
+                                alt=""
+                              />
+                            </p>
+                          </div>
+                          <div className=" mt-6 flex">
                             <button
-                              type="button"
-                              className="font-medium text-indigo-600 hover:text-indigo-500"
-                              onClick={() => setOpen(false)}
+                              onClick={() => {
+                                handleCheckout();
+                                setOpen(false);
+                              }}
+                              className="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
                             >
-                              Continue Shopping
-                              <span aria-hidden="true"> &rarr;</span>
+                              Купить
                             </button>
-                          </p>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </Dialog.Panel>
                 </Transition.Child>
