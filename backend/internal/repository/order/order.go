@@ -157,19 +157,19 @@ func (o *OrderRepo) Create(order *models.Order) error {
 	return nil
 }
 
-func (o *OrderRepo) Update(order *models.Order) error {
+func (o *OrderRepo) Update(orderID string, order *models.Order) error {
 	ctx, cancel := context.WithTimeout(context.Background(), o.timeout)
 	defer cancel()
 
 	query := `UPDATE orders SET status=$1 WHERE id=$2`
-	_, err := o.db.Exec(ctx, query, order.Status, order.ID)
+	_, err := o.db.Exec(ctx, query, order.Status, orderID)
 	if err != nil {
 		o.logger.Errorf("db error: %s", err)
 		return models.ErrDBConnection
 	}
 
 	query = `UPDATE orders SET cancel_reason=$1 WHERE id=$2`
-	_, err = o.db.Exec(ctx, query, order.CancelReason, order.ID)
+	_, err = o.db.Exec(ctx, query, order.CancelReason, orderID)
 	if err != nil {
 		o.logger.Errorf("db error: %s", err)
 		return models.ErrDBConnection
