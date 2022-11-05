@@ -93,7 +93,7 @@ CREATE TABLE public.orders
     created_at    timestamp without time zone DEFAULT now() NOT NULL,
     payed_at timestamp without time zone,
     packed_at timestamp without time zone,
-    finished_at timestamp without time zone,
+    delivered_at timestamp without time zone,
     cancel_reason text,
     CONSTRAINT fk_client_id
         FOREIGN KEY (client_id) REFERENCES users(id),

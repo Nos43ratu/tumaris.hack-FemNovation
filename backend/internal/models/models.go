@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type User struct {
 	ID       int    `json:"id,omitempty"`
 	Email    string `json:"email"`
@@ -21,4 +23,14 @@ type Session struct {
 }
 
 type Order struct {
+	ID           int       `json:"id,omitempty"`
+	Status       int       `json:"status,omitempty"`
+	ClientID     int       `json:"client_id,omitempty"`
+	ShopID       int       `json:"shop_id,omitempty"`
+	ProductID    int       `json:"product_id,omitempty"`
+	CreatedAt    time.Time `json:"created_at,omitempty"`
+	PayedAt      time.Time `json:"payed_at,omitempty"`
+	PackedAt     time.Time `json:"packed_at,omitempty"`
+	DeliveredAt  time.Time `json:"delivered_at,omitempty"`
+	CancelReason string    `json:"cancel_reason,omitempty"`
 }
