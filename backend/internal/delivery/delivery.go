@@ -61,24 +61,26 @@ func NewHandler(services *service.Service, sugar *zap.SugaredLogger) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.Default()
 
-	router.POST("/sign-in", h.SignIn)
-	router.OPTIONS("/sign-in", h.OK)
+	api := router.Group("/api")
 
-	router.GET("/refresh", h.Refresh)
-	router.OPTIONS("/refresh", h.OK)
+	api.POST("/sign-in", h.SignIn)
+	api.OPTIONS("/sign-in", h.OK)
 
-	router.GET("/sign-out", h.SignOut)
-	router.OPTIONS("/sign-out", h.OK)
+	api.GET("/refresh", h.Refresh)
+	api.OPTIONS("/refresh", h.OK)
 
-	router.GET("/categories/:category_id/products/:product_id")
-	router.DELETE("/categories/:category_id/products/:product_id")
-	router.POST("/categories/:category_id/products/:product_id")
-	router.GET("/categories/:category_id")
+	api.GET("/sign-out", h.SignOut)
+	api.OPTIONS("/sign-out", h.OK)
 
-	router.GET("/products")
+	api.GET("/categories/:category_id/products/:product_id")
+	api.DELETE("/categories/:category_id/products/:product_id")
+	api.POST("/categories/:category_id/products/:product_id")
+	api.GET("/categories/:category_id")
 
-	router.POST("/categories/:category_id/products/:product_id/order")
-	router.GET("/orders/:order_id")
+	api.GET("/products")
+
+	api.POST("/categories/:category_id/products/:product_id/order")
+	api.GET("/orders/:order_id")
 
 	return router
 }
