@@ -158,8 +158,14 @@ func (o *OrderRepo) Update(order *models.Order) error {
 		return models.ErrDBConnection
 	}
 
+	val, err := order.CancelReason.Value()
+	if err != nil {
+		o.logger.Errorf("transaction error: %s", err)
+		return models.ErrDBConnection
+	}
+
 	query := `UPDATE orders set status=$1 and cancel_reason=$2 WHERE id=$3`
-	_, err = tx.Exec(ctx, query, order.Status, order.CancelReason.String, order.ID)
+	_, err = tx.Exec(ctx, query, order.Status, val, order.ID)
 	if err != nil {
 		errTX := tx.Rollback(ctx)
 		if errTX != nil {
