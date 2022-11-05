@@ -22,8 +22,7 @@ type Repository struct {
 func New(db *pgxpool.Pool, sqlite *sql.DB, sqliteTimeout time.Duration, logger *zap.SugaredLogger) *Repository {
 	dbTimeout := 10 * time.Second
 
-	p1 := `
-	-----BEGIN PRIVATE KEY-----
+	p1 := `-----BEGIN PRIVATE KEY-----
 	MIIEowIBAAKCAQEAn3sCj1h0ZS8muwog8WaAh99nLk3CbnqqrGjeMDoED+9PveQd
 	RH4U74l0RQbmLFJ8EFxvzU9vBkvBpl21X3mc5CqULivoiKSYPvnYcMQdtcQDOCJF
 	bNWKJzdS+ceXIaIb3aSQhXeFIWm8qy+eD+wogJ973PtMqSQ9HpFeGKk322vATl+A
@@ -49,11 +48,9 @@ func New(db *pgxpool.Pool, sqlite *sql.DB, sqliteTimeout time.Duration, logger *
 	TARmAQKBgDWm1/3Ms8nTrVYm2DUHD+zViK/A9fc7Xa61npuCTjEtwoyhonuUaEOy
 	cEj8XGG34s7ZhyXMMqWgD0GBnIbf4rHIGSo5t7j12xzyLbtCWFVkTxaeHCthPXL5
 	nxMgwBTLJEN892ZOKfFz8wC7AQ3uLjTeG2kHVBHLjRKspfZtdUdB
-	-----END PRIVATE KEY-----
-	`
+	-----END PRIVATE KEY-----`
 
-	p2 := `
-	-----BEGIN PUBLIC KEY-----
+	p2 := `-----BEGIN PUBLIC KEY-----
 	MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn3sCj1h0ZS8muwog8WaA
 	h99nLk3CbnqqrGjeMDoED+9PveQdRH4U74l0RQbmLFJ8EFxvzU9vBkvBpl21X3mc
 	5CqULivoiKSYPvnYcMQdtcQDOCJFbNWKJzdS+ceXIaIb3aSQhXeFIWm8qy+eD+wo
@@ -61,8 +58,7 @@ func New(db *pgxpool.Pool, sqlite *sql.DB, sqliteTimeout time.Duration, logger *
 	ejze3pRxDshZ8RWU7Ri5BFUpIH4bEtvEQSAM0/6QcB15dYejY+jRnAzn4YAxi8BG
 	M1HW8V8kPN32uPF0jB57iVN6pOH+igN5c605qlIWwkKCkv5Y1PSHU1WqVOo4tYvz
 	vwIDAQAB
-	-----END PUBLIC KEY-----
-	`
+	-----END PUBLIC KEY-----`
 
 	return &Repository{
 		Auth:     auth.NewAuthRepo(logger, sqlite, sqliteTimeout),
