@@ -9,13 +9,13 @@ import (
 
 type Handler struct {
 	service *service.Service
-	sugar   *zap.SugaredLogger
+	logger  *zap.SugaredLogger
 }
 
 func NewHandler(services *service.Service, sugar *zap.SugaredLogger) *Handler {
 	return &Handler{
 		service: services,
-		sugar:   sugar,
+		logger:  sugar,
 	}
 }
 
@@ -30,6 +30,16 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	router.GET("/sign-out", h.SignOut)
 	router.OPTIONS("/sign-out", h.OK)
+
+	router.GET("/categories/:category_id/products/:product_id")
+	router.DELETE("/categories/:category_id/products/:product_id")
+	router.POST("/categories/:category_id/products/:product_id")
+	router.GET("/categories/:category_id")
+
+	router.GET("/products")
+
+	router.POST("/categories/:category_id/products/:product_id/order")
+	router.GET("/orders/:order_id")
 
 	return router
 }
