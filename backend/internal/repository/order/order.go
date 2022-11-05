@@ -55,7 +55,7 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 		var orders []*models.Order
 		for rows.Next() {
 			var order *models.Order
-			err = rows.Scan(&order)
+			err = rows.Scan(&order.ID, &order.Status, &order.ClientID, &order.ShopID, &order.ProductID, &order.CreatedAt, &order.PayedAt, &order.PackedAt, &order.DeliveredAt, &order.CancelReason)
 			if err != nil {
 				o.logger.Errorf("db error: %s", err)
 				return nil, models.ErrDBConnection
@@ -82,7 +82,7 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 		var orders []*models.Order
 		for rows.Next() {
 			var order *models.Order
-			err = rows.Scan(&order)
+			err = rows.Scan(&order.ID, &order.Status, &order.ClientID, &order.ShopID, &order.ProductID, &order.CreatedAt, &order.PayedAt, &order.PackedAt, &order.DeliveredAt, &order.CancelReason)
 			if err != nil {
 				o.logger.Errorf("db error: %s", err)
 				return nil, models.ErrDBConnection
