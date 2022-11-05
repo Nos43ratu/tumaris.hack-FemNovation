@@ -75,7 +75,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	api.POST("/categories/:category_id/products", h.CreateOrUpdateProduct)
 	api.POST("/categories/:category_id/products/:product_id", h.CreateOrUpdateProduct)
 	api.DELETE("/categories/:category_id/products/:product_id", h.DeleteProduct)
-	api.POST("/categories/:category_id/products/:product_id")
+	api.GET("/categories/:category_id/products/:product_id", h.GetProduct)
 	api.GET("/categories/:category_id")
 
 	api.GET("/products")
