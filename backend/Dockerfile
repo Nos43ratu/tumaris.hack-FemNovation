@@ -2,10 +2,9 @@
 FROM golang:1.17 AS build
 WORKDIR /app
 COPY . .
-RUN --mount=type=cache,target=/root/.cache go build -mod vendor -ldflags '-w -s' -o /app/prog -v ./cmd/main.go
+RUN --mount=type=cache,target=/root/.cache  go build -mod vendor -ldflags "-w -s" -o /app/prog -v ./cmd/main.go
 
 FROM alpine@sha256:d0710affa17fad5f466a70159cc458227bd25d4afb39514ef662ead3e6c99515
 WORKDIR /app
 COPY --from=build /app/prog .
 ENTRYPOINT ["/app/prog"]
-
