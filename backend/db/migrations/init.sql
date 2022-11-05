@@ -10,11 +10,15 @@ CREATE TABLE public.users
     about_me  character varying DEFAULT ''::character varying NOT NULL,
     link_to_instagram character varying,
     rating          float                     DEFAULT 0     NOT NULL,
+    shop_id integer,
     created         timestamp without time zone DEFAULT now() NOT NULL,
-    updated         timestamp without time zone DEFAULT now() NOT NULL
+    updated         timestamp without time zone DEFAULT now() NOT NULL,
+    CONSTRAINT fk_shops
+        FOREIGN KEY (shop_id) REFERENCES shop(id)
 );
 
 INSERT INTO users (email, phone_number, username, firstname, lastname, password, role, about_me, link_to_instagram, rating) VALUES ("Mdidara@quirduck.khs", "77017345566", "Didara", "Mamyrova","$2a$10$1JwL9V/KDXep5cYqNGpwJ.g2yStQrvPkw5xrCbopsu2APSjGdpH7K", "client", "Hi, this is me!","https://instagram/azaza", 10);
+INSERT INTO users (email, phone_number, username, firstname, lastname, password, role, about_me, link_to_instagram, rating) VALUES ("KLeya@gmail.com", "77017341111", "Leya", "Kim","$2a$10$AmWDAtt4TirVpFytlOdesuRl2cyF7z4X3sWQetBoa/yYQM/Nlu7Ei", "shop", "Hi, this is me!","https://instagram/azaza", 10);
 
 CREATE TABLE address
 (
@@ -49,6 +53,9 @@ CREATE TABLE shop
     CONSTRAINT fk_users
         FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+INSERT INTO shop ()
+VALUES ("Mdidara@quirduck.khs", "77017345566", "Didara", "Mamyrova","$2a$10$1JwL9V/KDXep5cYqNGpwJ.g2yStQrvPkw5xrCbopsu2APSjGdpH7K", "client", "Hi, this is me!","https://instagram/azaza", 10);
 
 CREATE TABLE product
 (

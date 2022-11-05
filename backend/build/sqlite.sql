@@ -24,3 +24,4 @@ CREATE TABLE IF NOT EXISTS tokens (
 -- INSERT INTO panel (device, status) VALUES ('radar', 1);
 
 INSERT INTO users (email, password, role) VALUES ("Mdidara@quirduck.khs", "$2a$10$1JwL9V/KDXep5cYqNGpwJ.g2yStQrvPkw5xrCbopsu2APSjGdpH7K", "client");
+INSERT INTO users (email, password, role) VALUES ("KLeya@gmail.com", "$2a$10$AmWDAtt4TirVpFytlOdesuRl2cyF7z4X3sWQetBoa/yYQM/Nlu7Ei", "shop");
