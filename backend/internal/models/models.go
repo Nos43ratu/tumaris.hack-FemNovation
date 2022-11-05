@@ -40,7 +40,7 @@ type Product struct {
 }
 type Order struct {
 	ID           int            `json:"id,omitempty"`
-	Status       int            `json:"status,omitempty"`
+	Status       int            `json:"status"`
 	ClientID     int            `json:"client_id,omitempty"`
 	ShopID       int            `json:"shop_id,omitempty"`
 	ProductID    int            `json:"product_id,omitempty"`
