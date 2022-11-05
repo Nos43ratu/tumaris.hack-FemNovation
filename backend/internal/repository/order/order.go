@@ -161,28 +161,9 @@ func (o *OrderRepo) Update(order *models.Order) error {
 	ctx, cancel := context.WithTimeout(context.Background(), o.timeout)
 	defer cancel()
 
-	tx, err := o.db.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		o.logger.Errorf("transaction error: %s", err)
-		return models.ErrDBConnection
-	}
-
 	query := `UPDATE orders set status=$1, cancel_reason=$2 WHERE id=$3`
-	_, err = tx.Exec(ctx, query, order.Status, order.CancelReason, order.ID)
+	_, err := o.db.Exec(ctx, query, order.Status, order.CancelReason, order.ID)
 	if err != nil {
-		errTX := tx.Rollback(ctx)
-		if errTX != nil {
-			o.logger.Errorf("transaction error: %s", errTX)
-		}
-		o.logger.Errorf("db error: %s", err)
-		return models.ErrDBConnection
-	}
-
-	if err = tx.Commit(ctx); err != nil {
-		errTX := tx.Rollback(ctx)
-		if errTX != nil {
-			o.logger.Errorf("transaction error: %s", errTX)
-		}
 		o.logger.Errorf("db error: %s", err)
 		return models.ErrDBConnection
 	}
