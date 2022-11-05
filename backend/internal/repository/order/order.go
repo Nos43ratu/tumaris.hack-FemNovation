@@ -30,7 +30,7 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 	defer cancel()
 
 	role := ""
-	var shopID int64
+	shopID := 0
 	query := `SELECT role, shop_id FROM users WHERE id=$1`
 	err := o.db.QueryRow(ctx, query, user.ID).Scan(&role, shopID)
 	if err != nil {
