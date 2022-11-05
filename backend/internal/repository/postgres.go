@@ -10,11 +10,11 @@ import (
 )
 
 func DBConnection(sugar *zap.SugaredLogger) (*pgxpool.Pool, error) {
-	username := ""
-	password := ""
-	host := ""
+	username := "postgres"
+	password := "postgres"
+	host := "postgres"
 	port := 5432
-	dbname := ""
+	dbname := "tumaris"
 	sslmode := "disable"
 	dbURI := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=%s&statement_cache_mode=describe", username, password, host, port, dbname, sslmode)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
