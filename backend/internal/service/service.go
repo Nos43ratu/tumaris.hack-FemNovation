@@ -5,6 +5,7 @@ import (
 
 	"tumaris.hack-FemNovation/backend/internal/repository"
 	"tumaris.hack-FemNovation/backend/internal/service/auth"
+	"tumaris.hack-FemNovation/backend/pkg/hash"
 )
 
 type Service struct {
@@ -13,6 +14,6 @@ type Service struct {
 
 func New(repos *repository.Repository, hasher *hash.BcryptHasher, accessTTL time.Duration, refreshTTL time.Duration) *Service {
 	return &Service{
-		Auth: newAuthService(repository.Auth, hasher, repository.Token, accessTTL, refreshTTL),
+		Auth: auth.NewAuthService(repos.Auth, hasher, repos.Token, accessTTL, refreshTTL),
 	}
 }

@@ -10,18 +10,21 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"tumaris.hack-FemNovation/backend/internal/models"
+	"tumaris.hack-FemNovation/backend/internal/repository/auth"
+	"tumaris.hack-FemNovation/backend/internal/repository/token"
+	"tumaris.hack-FemNovation/backend/pkg/hash"
 )
 
 type AuthService struct {
-	auth  repository.Auth
-	token repository.Token
+	auth  auth.Auth
+	token token.Token
 
 	hasher     *hash.BcryptHasher
 	accessTTL  time.Duration
 	refreshTTL time.Duration
 }
 
-func newAuthService(auth repository.Auth, hasher *hash.BcryptHasher, token repository.Token, accessTTL time.Duration, refreshTTL time.Duration) Service {
+func NewAuthService(auth auth.Auth, hasher *hash.BcryptHasher, token token.Token, accessTTL time.Duration, refreshTTL time.Duration) Service {
 	return &AuthService{
 		auth:       auth,
 		hasher:     hasher,

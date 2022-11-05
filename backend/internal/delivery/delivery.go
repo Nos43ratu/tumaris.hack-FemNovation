@@ -39,10 +39,10 @@ func NewHandler(services *service.Service, sugar *zap.SugaredLogger) *Handler {
 	token := &Token{
 		Pepper: "fjdskljdsfldsfdsjldsjflie4r",
 		Access: &Access{
-			TTL: 10 * time.Minute,
+			TTL: 15 * time.Hour,
 		},
 		Refresh: &Refresh{
-			TTL: 10 * time.Minute,
+			TTL: 15 * time.Hour,
 		},
 		Domain:     "kustoma.shop",
 		Secure:     false,

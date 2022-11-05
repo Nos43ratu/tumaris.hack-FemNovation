@@ -44,8 +44,8 @@ func Run() {
 
 	hasher := hash.NewByCryptHasher("fjdskljdsfldsfdsjldsjflie4r")
 
-	repositories := repository.New(db, sqlite, sugar)
-	service := service.New(repositories)
+	repositories := repository.New(db, sqlite, 10*time.Second, sugar)
+	service := service.New(repositories, hasher, 15*time.Hour, 15*time.Hour)
 	handlers := delivery.NewHandler(service, sugar)
 
 	port := 8090
