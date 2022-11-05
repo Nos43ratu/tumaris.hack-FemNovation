@@ -12,7 +12,9 @@ import (
 
 	"go.uber.org/zap"
 
+	"tumaris.hack-FemNovation/backend/internal/delivery"
 	"tumaris.hack-FemNovation/backend/internal/repository"
+	"tumaris.hack-FemNovation/backend/internal/service"
 )
 
 func Run() {
