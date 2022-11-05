@@ -161,8 +161,15 @@ func (o *OrderRepo) Update(order *models.Order) error {
 	ctx, cancel := context.WithTimeout(context.Background(), o.timeout)
 	defer cancel()
 
-	query := `UPDATE orders set status=$1, cancel_reason=$2 WHERE id=$3`
-	_, err := o.db.Exec(ctx, query, order.Status, order.CancelReason, order.ID)
+	query := `UPDATE orders SET status=$1 WHERE id=$2`
+	_, err := o.db.Exec(ctx, query, order.Status, order.ID)
+	if err != nil {
+		o.logger.Errorf("db error: %s", err)
+		return models.ErrDBConnection
+	}
+
+	query = `UPDATE orders SET cancel_reason=$1 WHERE id=$2`
+	_, err = o.db.Exec(ctx, query, order.CancelReason, order.ID)
 	if err != nil {
 		o.logger.Errorf("db error: %s", err)
 		return models.ErrDBConnection
