@@ -69,6 +69,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	api.GET("/refresh", h.Refresh)
 	api.OPTIONS("/refresh", h.OK)
 
+	api.GET("/sign-out", h.SignOut)
+	api.OPTIONS("/sign-out", h.OK)
+
 	router.GET("/categories/:category_id/products/:product_id", h.CreateOrUpdateProduct)
 	router.DELETE("/categories/:category_id/products/:product_id")
 	router.POST("/categories/:category_id/products/:product_id")
