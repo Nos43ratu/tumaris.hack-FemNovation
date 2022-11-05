@@ -19,3 +19,15 @@ type Session struct {
 	AccessToken   string
 	RefreshExpire int64
 }
+
+type Product struct {
+	ProductID int `json:"id"`
+	ShopID int `json:"shop_id"`
+	Name    string `json:"name"`
+	Description string `json:"description"`
+	Sizes     []string `json:"sizes,omitempty"`
+	Colors []int `json:"colors,omitempty"`
+	Weight float32 `json:"weight"`
+	Price float32 `json:"price"`
+	CategoryID int `json:"category_id"`
+}
