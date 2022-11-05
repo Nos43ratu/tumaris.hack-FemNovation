@@ -1,117 +1,144 @@
 import React from "react";
+import { LockClosedIcon } from "@heroicons/react/20/solid";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SignIn = () => {
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const navigate = useNavigate();
+
+  const mutation = useMutation({
+    mutationFn: (data: { email: string; password: string }) =>
+      axios.post("/api/sign-in", data),
+    onSuccess: (data: any) => {
+      if (!data.error) {
+        return navigate("/cabinet/orders");
+      }
+      return toast.error("Не верный логин или пароль");
+    },
+    onError: () => toast.error("Что то пошло не так :("),
+  });
+
+  const handleSignIn = (e: any) => {
+    e.preventDefault();
+    mutation.mutate({ email, password });
+  };
+
   return (
-    <div className="relative flex min-h-full justify-center md:px-12 lg:px-0">
-      <div className="relative z-10 flex flex-1 flex-col bg-white py-10 px-4 shadow-2xl sm:justify-center md:flex-none md:px-28">
-        <div className="mx-auto w-full max-w-md sm:px-4 md:w-96 md:max-w-sm md:px-0">
-          <div className="flex flex-col">
-            <a aria-label="Home" href="/">
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 109 40"
-                className="h-10 w-auto"
-              >
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M0 20c0 11.046 8.954 20 20 20s20-8.954 20-20S31.046 0 20 0 0 8.954 0 20Zm20 16c-7.264 0-13.321-5.163-14.704-12.02C4.97 22.358 6.343 21 8 21h24c1.657 0 3.031 1.357 2.704 2.98C33.32 30.838 27.264 36 20 36Z"
-                  fill="#2563EB"
-                ></path>
-                <path
-                  d="M55.528 26.57V15.842H52V13.97h9.108v1.872h-3.636V26.57h-1.944Z"
-                  fill="#0F172A"
-                ></path>
-                <path
-                  d="M83.084 26.57v-12.6h5.346c.744 0 1.416.18 2.016.54a3.773 3.773 0 0 1 1.44 1.44c.36.612.54 1.302.54 2.07 0 .78-.18 1.482-.54 2.106a4 4 0 0 1-1.44 1.494c-.6.36-1.272.54-2.016.54h-2.646v4.41h-2.7Zm2.664-6.84h2.376c.288 0 .546-.072.774-.216.228-.156.408-.36.54-.612a1.71 1.71 0 0 0 .216-.864c0-.324-.072-.606-.216-.846a1.394 1.394 0 0 0-.54-.576 1.419 1.419 0 0 0-.774-.216h-2.376v3.33ZM106.227 26.57V13.25h2.556v13.32h-2.556Z"
-                  fill="#2563EB"
-                ></path>
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M95.906 26.102c.636.432 1.35.648 2.142.648.444 0 .864-.066 1.26-.198a4.25 4.25 0 0 0 1.062-.558 3.78 3.78 0 0 0 .702-.668v1.244h2.574v-9.522h-2.538v1.248a3.562 3.562 0 0 0-.648-.672 3.13 3.13 0 0 0-1.026-.558 3.615 3.615 0 0 0-1.278-.216c-.828 0-1.566.216-2.214.648-.648.42-1.164 1.002-1.548 1.746-.372.732-.558 1.578-.558 2.538 0 .96.186 1.812.558 2.556.372.744.876 1.332 1.512 1.764Zm4.104-1.908c-.36.228-.78.342-1.26.342-.468 0-.882-.114-1.242-.342a2.387 2.387 0 0 1-.828-.954c-.204-.42-.306-.906-.306-1.458 0-.54.102-1.014.306-1.422.204-.408.48-.726.828-.954.36-.24.774-.36 1.242-.36.48 0 .9.12 1.26.36.36.228.636.546.828.954.204.408.306.882.306 1.422 0 .552-.102 1.038-.306 1.458a2.218 2.218 0 0 1-.828.954Z"
-                  fill="#2563EB"
-                ></path>
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="m76.322 23.197 2.595 3.373h2.268l-3.662-4.787 3.338-4.663h-2.196l-2.162 3.334-2.554-3.334h-2.34l3.652 4.71-3.634 4.74h2.196l2.5-3.373ZM62.738 26.102a3.78 3.78 0 0 0 2.142.648c.456 0 .888-.072 1.296-.216.42-.144.798-.336 1.134-.576a3.418 3.418 0 0 0 .864-.835v1.447h1.872v-9.45h-1.872v1.45a3.118 3.118 0 0 0-.72-.82 3.2 3.2 0 0 0-1.062-.612 4.033 4.033 0 0 0-1.35-.216c-.828 0-1.578.21-2.25.63-.66.42-1.188 1.002-1.584 1.746-.384.732-.576 1.572-.576 2.52 0 .936.192 1.776.576 2.52.384.744.894 1.332 1.53 1.764Zm4.122-1.476c-.432.276-.93.414-1.494.414a2.682 2.682 0 0 1-1.476-.414 2.987 2.987 0 0 1-1.008-1.134c-.24-.492-.36-1.05-.36-1.674 0-.612.12-1.158.36-1.638.252-.48.588-.858 1.008-1.134a2.682 2.682 0 0 1 1.476-.414c.564 0 1.062.138 1.494.414.432.276.768.654 1.008 1.134.252.48.378 1.026.378 1.638 0 .624-.126 1.182-.378 1.674-.24.48-.576.858-1.008 1.134Z"
-                  fill="#0F172A"
-                ></path>
-              </svg>
+    <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8">
+        <div className="flex flex-col items-center">
+          <a href="/">
+            <svg
+              width="200"
+              height="26"
+              viewBox="0 0 556 74"
+              fill="#2563eb"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M52.9806 73.036H50.2007L19.3127 34.9408L2.32434 53.3706V73.036H0.265137V1.06696H2.32434V50.3848L47.8327 1.06696H50.7155L20.7542 33.3964L52.9806 73.036Z" />
+              <path d="M79.4562 44.1042C79.4562 52.7529 81.7556 59.4453 86.3545 64.1814C91.022 68.9176 97.5429 71.2857 105.917 71.2857C114.291 71.2857 120.777 68.9176 125.376 64.1814C130.044 59.4453 132.378 52.7529 132.378 44.1042V1.06696H134.437V44.1042C134.437 53.4393 131.931 60.6465 126.921 65.7258C121.979 70.8052 114.977 73.3449 105.917 73.3449C96.8565 73.3449 89.8209 70.8052 84.8101 65.7258C79.8681 60.6465 77.397 53.4393 77.397 44.1042V1.06696H79.4562V44.1042Z" />
+              <path d="M204.929 7.55344C202.596 6.04336 199.781 4.87648 196.487 4.0528C193.261 3.16048 190.035 2.71432 186.808 2.71432C180.494 2.71432 175.414 4.01848 171.57 6.6268C167.795 9.16648 165.908 12.5642 165.908 16.8198C165.908 20.5264 166.834 23.5122 168.687 25.7774C170.541 28.0425 172.806 29.7928 175.483 31.0283C178.228 32.1952 181.935 33.4994 186.603 34.9408C191.545 36.4509 195.491 37.8923 198.443 39.2651C201.394 40.5693 203.865 42.5255 205.856 45.1338C207.915 47.7422 208.945 51.1742 208.945 55.4298C208.945 58.9991 207.95 62.1566 205.959 64.9022C203.968 67.5791 201.12 69.6726 197.413 71.1827C193.775 72.6242 189.485 73.3449 184.543 73.3449C180.013 73.3449 175.517 72.4182 171.056 70.565C166.663 68.7117 162.956 66.2406 159.936 63.1518L161.377 61.7104C164.123 64.6619 167.589 66.9957 171.776 68.7117C175.963 70.4277 180.219 71.2857 184.543 71.2857C191.339 71.2857 196.761 69.8442 200.811 66.9614C204.861 64.0785 206.886 60.2346 206.886 55.4298C206.886 51.6546 205.925 48.6345 204.003 46.3694C202.149 44.0356 199.85 42.251 197.104 41.0154C194.359 39.7113 190.618 38.3385 185.882 36.897C181.008 35.387 177.096 33.9798 174.144 32.6757C171.261 31.3029 168.825 29.3466 166.834 26.807C164.844 24.2673 163.848 20.9039 163.848 16.7169C163.848 11.8434 165.942 7.96528 170.129 5.0824C174.316 2.13088 179.876 0.655121 186.808 0.655121C190.172 0.655121 193.57 1.1356 197.002 2.09656C200.502 3.05752 203.488 4.32736 205.959 5.90608L204.929 7.55344Z" />
+              <path d="M228.196 1.06696H279.675V3.12615H254.965V73.036H252.906V3.12615H228.196V1.06696Z" />
+              <path d="M327.843 0.655121C334.502 0.655121 340.645 2.30248 346.273 5.5972C351.97 8.82328 356.466 13.2162 359.761 18.7761C363.124 24.3359 364.806 30.3762 364.806 36.897C364.806 43.4178 363.124 49.4925 359.761 55.121C356.466 60.6808 351.97 65.1081 346.273 68.4028C340.645 71.6975 334.502 73.3449 327.843 73.3449C321.185 73.3449 315.008 71.6975 309.311 68.4028C303.682 65.1081 299.186 60.6808 295.823 55.121C292.528 49.4925 290.881 43.4178 290.881 36.897C290.881 30.3762 292.528 24.3359 295.823 18.7761C299.186 13.2162 303.682 8.82328 309.311 5.5972C315.008 2.30248 321.185 0.655121 327.843 0.655121ZM327.843 2.71432C321.597 2.71432 315.797 4.25872 310.443 7.34752C305.089 10.4363 300.834 14.6234 297.676 19.9086C294.519 25.1253 292.94 30.7881 292.94 36.897C292.94 43.0746 294.519 48.8061 297.676 54.0914C300.834 59.3766 305.089 63.5637 310.443 66.6525C315.797 69.7413 321.597 71.2857 327.843 71.2857C334.09 71.2857 339.89 69.7413 345.244 66.6525C350.598 63.5637 354.853 59.3766 358.011 54.0914C361.168 48.8061 362.747 43.0746 362.747 36.897C362.747 30.7881 361.168 25.1253 358.011 19.9086C354.853 14.6234 350.598 10.4363 345.244 7.34752C339.89 4.25872 334.09 2.71432 327.843 2.71432Z" />
+              <path d="M393.18 1.06696H396.784L428.186 60.6808L459.383 1.06696H462.987V73.036H460.928L460.825 3.0232L428.186 65.1081H427.98L395.239 3.0232V73.036H393.18V1.06696Z" />
+              <path d="M553.367 73.036L543.277 51.1055H499.622L489.635 73.036H487.163L520.111 1.06696H522.376L555.735 73.036H553.367ZM500.548 49.0463H542.247L521.243 3.43503L500.548 49.0463Z" />
+            </svg>
+          </a>
+          <h2 className="mt-6 text-center text-2xl font-bold tracking-tight text-gray-900">
+            Войдите в свой аккаунт
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            или{" "}
+            <a
+              href="/sign-up"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              зарегистрируйтесь
             </a>
-            <div className="mt-20">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Sign in to your account
-              </h2>
-              <p className="mt-2 text-sm text-gray-700">
-                Don’t have an account?{" "}
-                <a
-                  className="font-medium text-blue-600 hover:underline"
-                  href="/register"
-                >
-                  Sign up
-                </a>{" "}
-                for a free trial.
-              </p>
-            </div>
-          </div>
-          <form action="#" className="mt-10 grid grid-cols-1 gap-y-8">
-            <div className="">
-              <label
-                htmlFor="email"
-                className="mb-3 block text-sm font-medium text-gray-700"
-              >
-                Email address
+          </p>
+        </div>
+        <form className="mt-8 space-y-6">
+          <input type="hidden" name="remember" defaultValue="true" />
+          <div className="-space-y-px rounded-md shadow-sm">
+            <div>
+              <label htmlFor="email-address" className="sr-only">
+                Email
               </label>
               <input
-                id="email"
-                type="email"
+                id="email-address"
                 name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
                 autoComplete="email"
-                className="block w-full appearance-none rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-blue-500 sm:text-sm"
-              />
-            </div>
-            <div className="">
-              <label
-                htmlFor="password"
-                className="mb-3 block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                name="password"
-                autoComplete="current-password"
-                className="block w-full appearance-none rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-blue-500 sm:text-sm"
+                required
+                className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                placeholder="Email"
               />
             </div>
             <div>
-              <button
-                className="group inline-flex w-full items-center justify-center rounded-full bg-blue-600 py-2 px-4 text-sm font-semibold text-white hover:bg-blue-500 hover:text-slate-100 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 active:bg-blue-800 active:text-blue-100"
-                type="submit"
-              >
-                <span>
-                  Sign in <span aria-hidden="true">→</span>
-                </span>
-              </button>
+              <label htmlFor="password" className="sr-only">
+                Пароль
+              </label>
+              <input
+                id="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type="password"
+                autoComplete="current-password"
+                required
+                className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                placeholder="Пароль"
+              />
             </div>
-          </form>
-        </div>
-      </div>
-      <div className="hidden sm:contents lg:relative lg:block lg:flex-1">
-        <img
-          alt=""
-          src="https://salient.tailwindui.com/_next/static/media/background-auth.4bcf3f4b.jpg"
-          width="1664"
-          height="1866"
-          decoding="async"
-          data-nimg="1"
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="lazy"
-          style={{ color: "transparent" }}
-        />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-gray-900"
+              >
+                Запомнить меня
+              </label>
+            </div>
+
+            <div className="text-sm">
+              <a
+                href="#"
+                className="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                Забыли пароль?
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <button
+              onClick={handleSignIn}
+              className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <LockClosedIcon
+                  className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
+                  aria-hidden="true"
+                />
+              </span>
+              Войти
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

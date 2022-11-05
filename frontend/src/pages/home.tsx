@@ -33,15 +33,15 @@ const Hero = () => {
       <div className="mt-10 flex justify-center gap-x-6">
         <a
           className="group inline-flex items-center justify-center rounded-full bg-slate-900 py-2 px-4 text-sm font-semibold text-white hover:bg-slate-700 hover:text-slate-100 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 active:bg-slate-800 active:text-slate-300"
-          href="/orders"
+          href="/cabinet/orders"
         >
           Найти услугу
         </a>
         <a
           className="group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm text-slate-700 ring-1 ring-slate-200 hover:text-slate-900 hover:ring-slate-300 focus:outline-none focus-visible:outline-blue-600 focus-visible:ring-slate-300 active:bg-slate-100 active:text-slate-600"
-          href="/sign-up?role=customer"
+          href="/sign-up?role=creator"
         >
-          <span className="ml-3">Стать исполнителем</span>
+          <span className="">Стать исполнителем</span>
         </a>
       </div>
     </div>
@@ -60,6 +60,7 @@ const Header = () => {
                 height="26"
                 viewBox="0 0 556 74"
                 fill="#2563eb"
+                className="h-[20px] w-[150px] md:h-[26px] md:w-[200px]"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path d="M52.9806 73.036H50.2007L19.3127 34.9408L2.32434 53.3706V73.036H0.265137V1.06696H2.32434V50.3848L47.8327 1.06696H50.7155L20.7542 33.3964L52.9806 73.036Z" />
@@ -96,48 +97,19 @@ const Header = () => {
             <div className="hidden md:block">
               <a
                 className="inline-block rounded-lg py-1 px-2 text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900"
-                href="/cabinet/sign-in"
+                href="/sign-in"
               >
                 Войти
               </a>
             </div>
             <a
               className="group inline-flex items-center justify-center rounded-full bg-blue-600 py-2 px-4 text-sm font-semibold text-white hover:bg-blue-500 hover:text-slate-100 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 active:bg-blue-800 active:text-blue-100"
-              href="/cabinet/sign-up"
+              href="/sign-up"
             >
               <span>
                 Начни <span className="hidden lg:inline">сейчас</span>
               </span>
             </a>
-            <div className="-mr-1 md:hidden">
-              <div data-headlessui-state="">
-                <button
-                  className="relative z-10 flex h-8 w-8 items-center justify-center [&:not(:focus-visible)]:focus:outline-none"
-                  aria-label="Toggle Navigation"
-                  id="headlessui-popover-button-:r0:"
-                  type="button"
-                  aria-expanded="false"
-                  data-headlessui-state=""
-                >
-                  <svg
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5 overflow-visible stroke-slate-700"
-                    fill="none"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  >
-                    <path
-                      d="M0 1H14M0 7H14M0 13H14"
-                      className="origin-center transition"
-                    ></path>
-                    <path
-                      d="M2 2L12 12M12 2L2 12"
-                      className="origin-center scale-90 opacity-0 transition"
-                    ></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
           </div>
         </nav>
       </div>

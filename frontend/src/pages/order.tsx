@@ -1,6 +1,8 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, Disclosure, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import create from "zustand";
 import {
   FunnelIcon,
   MagnifyingGlassIcon,
@@ -8,7 +10,78 @@ import {
   PlusIcon,
   StarIcon,
 } from "@heroicons/react/20/solid";
+import { useSearchParams } from "react-router-dom";
 import clsx from "clsx";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { useCartStore } from "@/shared/ui/Layout";
+
+const fakeApi = (): Promise<Product[]> =>
+  new Promise((resolve) => {
+    return setTimeout(() => {
+      resolve([
+        {
+          id: 1,
+          name: "Бутылка",
+          description:
+            "Очень классная бутыл, купил себе, маме, отцу, брату, сестренке, жене, теще, свату",
+          product_categories: "",
+          product_sizes: "",
+          colors: "",
+          weight: "5",
+          product_comments: "",
+          price: "48",
+          rating: 4,
+          imageSrc:
+            "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
+        },
+        {
+          id: 2,
+          name: "Бутылка",
+          description:
+            "Очень классная бутыл, купил себе, маме, отцу, брату, сестренке, жене, теще, свату",
+          product_categories: "",
+          product_sizes: "",
+          colors: "",
+          weight: "5",
+          product_comments: "",
+          price: "48",
+          rating: 4,
+          imageSrc:
+            "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
+        },
+        {
+          id: 3,
+          name: "Блокнот",
+          description:
+            "Очень классная бутыл, купил себе, маме, отцу, брату, сестренке, жене, теще, свату",
+          product_categories: "",
+          product_sizes: "",
+          colors: "",
+          weight: "5",
+          product_comments: "",
+          price: "48",
+          rating: 4,
+          imageSrc:
+            "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
+        },
+        {
+          id: 4,
+          name: "ручка",
+          description:
+            "Очень классная бутыл, купил себе, маме, отцу, брату, сестренке, жене, теще, свату",
+          product_categories: "",
+          product_sizes: "",
+          colors: "",
+          weight: "5",
+          product_comments: "",
+          price: "48",
+          rating: 4,
+          imageSrc:
+            "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
+        },
+      ]);
+    }, 1000);
+  });
 
 const subCategories = [
   { name: "Торты", href: "#" },
@@ -35,16 +108,20 @@ const filters = [
   },
 ];
 
-const Order = () => {
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+const useMobileFilterOpen = create<{ open: boolean; handleClick: () => void }>(
+  (set) => ({
+    open: false,
+    handleClick: () => set((state) => ({ open: !state.open })),
+  })
+);
+
+const Orders = () => {
+  const handleOpen = useMobileFilterOpen((state) => state.handleClick);
 
   return (
     <div className="bg-white">
       <div>
-        <MobileFilter
-          mobileFiltersOpen={mobileFiltersOpen}
-          setMobileFiltersOpen={setMobileFiltersOpen}
-        />
+        <MobileFilter />
 
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-baseline justify-between border-b border-gray-200 pt-12 pb-6 md:flex-row">
@@ -59,7 +136,7 @@ const Order = () => {
                 <button
                   type="button"
                   className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
-                  onClick={() => setMobileFiltersOpen(true)}
+                  onClick={handleOpen}
                 >
                   <span className="sr-only">Filters</span>
                   <FunnelIcon className="h-5 w-5" aria-hidden="true" />
@@ -86,6 +163,23 @@ const Order = () => {
 };
 
 const Search = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [value, setValue] = useState("");
+
+  useEffect(() => {
+    const time = setTimeout(() => {
+      setSearchParams({ search: value });
+    }, 1000);
+
+    return () => clearTimeout(time);
+  }, [value]);
+
+  useEffect(() => {
+    const search = searchParams.get("search");
+    if (search) setValue(search);
+  }, []);
+
   return (
     <div className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end">
       <div className="w-full max-w-lg lg:max-w-xs">
@@ -102,6 +196,8 @@ const Search = () => {
           <input
             id="search"
             name="search"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
             className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-gray-500 shadow-sm focus:border-blue-600 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-600 sm:text-sm"
             placeholder="Search"
             type="search"
@@ -113,84 +209,76 @@ const Search = () => {
 };
 
 const Products = () => {
-  const products = [
-    {
-      id: 1,
-      name: "Earthen Bottle",
-      price: "$48",
-      imageSrc:
-        "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
-      imageAlt:
-        "Tall slender porcelain bottle with natural clay textured body and cork stopper.",
-    },
-    {
-      id: 2,
-      name: "Nomad Tumbler",
-      price: "$35",
-      imageSrc:
-        "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
-      imageAlt:
-        "Olive drab green insulated bottle with flared screw lid and flat top.",
-    },
-    {
-      id: 3,
-      name: "Focus Paper Refill",
-      price: "$89",
-      imageSrc:
-        "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
-      imageAlt:
-        "Person using a pen to cross a task off a productivity paper card.",
-    },
-    {
-      id: 4,
-      name: "Machined Mechanical Pencil",
-      price: "$35",
-      imageSrc:
-        "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
-      imageAlt:
-        "Hand holding black machined steel mechanical pencil with brass tip and top.",
-    },
-  ];
+  const { data, isLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: fakeApi,
+  });
+
+  const [parent] = useAutoAnimate<HTMLDivElement | null>();
 
   return (
     <div className="lg:col-span-3">
-      <div className="bg-white">
-        <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-          {products.map((product) => (
-            <Product key={product.id} product={product} />
+      <div className="relative h-full bg-white">
+        <div
+          className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
+          ref={parent}
+        >
+          {data?.map((product) => (
+            <ProductItem key={product.id} product={product} />
           ))}
         </div>
+        {isLoading && (
+          <div className="absolute flex h-full w-full items-center justify-center text-blue-600">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="10 10 80 80"
+              className={clsx("animate-spin")}
+              width={40}
+              height={40}
+              preserveAspectRatio="xMidYMid"
+              stroke="currentColor"
+            >
+              <circle
+                cx="50"
+                cy="50"
+                fill="none"
+                stroke-width="10"
+                r="35"
+                stroke-dasharray="164.93361431346415 56.97787143782138"
+              />
+            </svg>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-type ProductProps = {
-  product: {
-    id: number;
-    name: string;
-    price: string;
-    imageSrc: string;
-    imageAlt: string;
-  };
-};
-
-const Product = ({ product }: ProductProps) => {
+const ProductItem = ({ product }: { product: Product }) => {
+  const cart = useCartStore();
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button onClick={() => setOpen(true)} key={product.id} className="group">
+      <button
+        onClick={() => setOpen(true)}
+        key={product.id}
+        className="group items-center"
+      >
         <div className="aspect-w-1 aspect-h-1 xl:aspect-w-7 xl:aspect-h-8 w-full overflow-hidden rounded-lg bg-gray-200">
           <img
             src={product.imageSrc}
-            alt={product.imageAlt}
             className="h-full w-full object-cover object-center group-hover:opacity-75"
           />
         </div>
         <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>
-        <p className="mt-1 text-lg font-medium text-gray-900">
+        <p className="mt-1 flex items-center text-lg font-medium text-gray-900">
           {product.price}
+          <img
+            className="object-fit h-2.5 w-2"
+            src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Tenge_symbol.svg"
+            alt=""
+          />
         </p>
       </button>
       <Transition.Root show={open} as={Fragment}>
@@ -233,14 +321,15 @@ const Product = ({ product }: ProductProps) => {
                       <div className="aspect-w-2 aspect-h-3 overflow-hidden rounded-lg bg-gray-100 sm:col-span-4 lg:col-span-5">
                         <img
                           src={product.imageSrc}
-                          alt={product.imageAlt}
                           className="object-cover object-center"
                         />
                       </div>
-                      <div className="sm:col-span-8 lg:col-span-7">
+                      <div className="flex h-full flex-col sm:col-span-8 lg:col-span-7">
                         <h2 className="text-2xl font-bold text-gray-900 sm:pr-12">
                           {product.name}
                         </h2>
+
+                        <p>{product.description}</p>
 
                         <section
                           aria-labelledby="information-heading"
@@ -250,57 +339,67 @@ const Product = ({ product }: ProductProps) => {
                             Product information
                           </h3>
 
-                          <p className="text-2xl text-gray-900">
-                            {product.price}
+                          <p className="flex items-center text-2xl text-gray-900">
+                            {product.price}{" "}
+                            <img
+                              className="object-fit h-2.5 w-2"
+                              src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Tenge_symbol.svg"
+                              alt=""
+                            />
                           </p>
 
                           {/* Reviews */}
                           <div className="mt-6">
-                            <h4 className="sr-only">Reviews</h4>
                             <div className="flex items-center">
-                              {/*<div className="flex items-center">*/}
-                              {/*  {[0, 1, 2, 3, 4].map((rating) => (*/}
-                              {/*    <StarIcon*/}
-                              {/*      key={rating}*/}
-                              {/*      className={clsx(*/}
-                              {/*        product.rating > rating*/}
-                              {/*          ? "text-gray-900"*/}
-                              {/*          : "text-gray-200",*/}
-                              {/*        "h-5 w-5 flex-shrink-0"*/}
-                              {/*      )}*/}
-                              {/*      aria-hidden="true"*/}
-                              {/*    />*/}
-                              {/*  ))}*/}
-                              {/*</div>*/}
-                              {/*<p className="sr-only">*/}
-                              {/*  {product.rating} out of 5 stars*/}
-                              {/*</p>*/}
-                              <a
-                                href="#"
-                                className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                              >
-                                5 reviews
-                              </a>
+                              <div className="flex items-center">
+                                {[0, 1, 2, 3, 4].map((rating) => (
+                                  <StarIcon
+                                    key={rating}
+                                    className={clsx(
+                                      product.rating > rating
+                                        ? "text-yellow-500"
+                                        : "text-gray-200",
+                                      "h-5 w-5 flex-shrink-0"
+                                    )}
+                                    aria-hidden="true"
+                                  />
+                                ))}
+                              </div>
                             </div>
                           </div>
+                          <p className="mt-6 text-sm font-medium">
+                            Weight: {product.weight}
+                          </p>
                         </section>
 
                         <section
                           aria-labelledby="options-heading"
-                          className="mt-10"
+                          className="mt-auto"
                         >
-                          <h3 id="options-heading" className="sr-only">
-                            Product options
-                          </h3>
-
-                          <form>
-                            <button
-                              type="submit"
-                              className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                            >
-                              Add to bag
-                            </button>
-                          </form>
+                          <div>
+                            {cart.products.findIndex(
+                              (e) => e.id === product.id
+                            ) !== -1 ? (
+                              <button
+                                disabled
+                                className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-gray-600 py-3 px-8 text-base font-medium text-white"
+                              >
+                                Добавлено в корзину
+                              </button>
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  cart.addProduct(product);
+                                  setOpen(false);
+                                  cart.handleOpen(true);
+                                }}
+                                className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                              >
+                                Добавить в корзину
+                              </button>
+                            )}
+                          </div>
                         </section>
                       </div>
                     </div>
@@ -382,13 +481,15 @@ const Filter = () => {
   );
 };
 
-const MobileFilter = ({ mobileFiltersOpen, setMobileFiltersOpen }: any) => {
+const MobileFilter = () => {
+  const mobileFilter = useMobileFilterOpen((state) => state);
+
   return (
-    <Transition.Root show={mobileFiltersOpen} as={Fragment}>
+    <Transition.Root show={mobileFilter.open} as={Fragment}>
       <Dialog
         as="div"
         className="relative z-40 lg:hidden"
-        onClose={setMobileFiltersOpen}
+        onClose={mobileFilter.handleClick}
       >
         <Transition.Child
           as={Fragment}
@@ -414,11 +515,11 @@ const MobileFilter = ({ mobileFiltersOpen, setMobileFiltersOpen }: any) => {
           >
             <Dialog.Panel className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-white py-4 pb-12 shadow-xl">
               <div className="flex items-center justify-between px-4">
-                <h2 className="text-lg font-medium text-gray-900">Filters</h2>
+                <h2 className="text-lg font-medium text-gray-900">Фильтр</h2>
                 <button
                   type="button"
                   className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400"
-                  onClick={() => setMobileFiltersOpen(false)}
+                  onClick={mobileFilter.handleClick}
                 >
                   <span className="sr-only">Close menu</span>
                   <XMarkIcon className="h-6 w-6" aria-hidden="true" />
@@ -504,4 +605,4 @@ const MobileFilter = ({ mobileFiltersOpen, setMobileFiltersOpen }: any) => {
   );
 };
 
-export default Order;
+export default Orders;

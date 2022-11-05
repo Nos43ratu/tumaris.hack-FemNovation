@@ -6,7 +6,7 @@ RUN --mount=type=cache,target=/root/.cache go build -mod vendor -ldflags '-w -s'
 
 FROM debian:latest
 WORKDIR /app
-COPY  --from=build /app/lol .
+COPY --from=build /app/lol .
 COPY --from=build /app/auth-public.pem .
 COPY --from=build /app/auth-private.pem .
 ENTRYPOINT ["/app/lol"]
