@@ -32,7 +32,7 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 	role := ""
 	shopID := 0
 	query := `SELECT role, shop_id FROM users WHERE id=$1`
-	err := o.db.QueryRow(ctx, query, user.ID).Scan(&role, &shopID)
+	err := o.db.QueryRow(ctx, query, user.ID).Scan(&role, shopID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			o.logger.Errorf("invite does not exist: %s", err)
