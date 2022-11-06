@@ -6,15 +6,9 @@ import (
 )
 
 func (h *Handler) GetUser(c *gin.Context) {
-	user := &models.User{}
+	email := c.Param("email")
 
-	if err := parseJSON(c, user); err != nil {
-		h.logger.Errorf("[ERROR]: [%s] bad request error: %s", err.Error())
-		c.JSON(400, CreateResponse(models.StatusError, nil, models.ErrInvalidInput))
-		return
-	}
-
-	info, err := h.service.Users.GetByEmail(user.Email)
+	info, err := h.service.Users.GetByEmail(email)
 	if err != nil {
 		h.logger.Errorf("[ERROR]: error getting user", err)
 		c.JSON(500, CreateResponse(models.StatusError, nil, models.ErrInternalServer))
