@@ -35,5 +35,5 @@ func (u *UserRepo) GetByEmail(email string) (*models.UserInfo, error) {
 		return nil, models.ErrDBConnection
 	}
 
-	return nil, nil
+	return user, nil
 }

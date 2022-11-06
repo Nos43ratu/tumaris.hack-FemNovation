@@ -21,6 +21,6 @@ func (h *Handler) GetUser(c *gin.Context) {
 		return
 	}
 
-	h.logger.Infof("[SUCCESS]: getting user %+v", user)
+	h.logger.Infof("[SUCCESS]: getting user %+v", info)
 	c.JSON(200, CreateResponse(models.StatusOK, info, nil))
 }
