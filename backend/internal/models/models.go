@@ -11,6 +11,20 @@ type User struct {
 	Role     string `json:"role,omitempty"`
 }
 
+type UserInfo struct {
+	ID        int     `json:"id,omitempty"`
+	Email     string  `json:"email"`
+	Phone     string  `json:"phone_number"`
+	FirstName string  `json:"first_name"`
+	LastName  string  `json:"last_name"`
+	Password  string  `json:"password"`
+	Role      string  `json:"role,omitempty"`
+	AboutMe   string  `json:"about_me"`
+	Instagram string  `json:"instagram"`
+	Rating    float64 `json:"rating"`
+	ShopID    int     `json:"shop_id"`
+}
+
 type Tokens struct {
 	Access  string `json:"access_token,omitempty"`
 	Refresh string `json:"refresh_token,omitempty"`
