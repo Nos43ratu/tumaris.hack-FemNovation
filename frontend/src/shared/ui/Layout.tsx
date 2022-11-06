@@ -1,26 +1,13 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Dialog, Menu, Popover, Transition } from "@headlessui/react";
-import {
-  ShoppingBagIcon,
-  BellIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+import { ShoppingBagIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import create from "zustand";
 import { StarIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { toast } from "react-toastify";
 import { instance } from "@/shared/api/axios.instance";
-
-const user = {
-  name: "Whitney Francis",
-  email: "whitney@example.com",
-  imageUrl:
-    "https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80",
-};
 
 const Layout = () => {
   return (
