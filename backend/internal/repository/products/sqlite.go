@@ -33,7 +33,7 @@ func (r *ProductsRepo) CreateProduct(product *models.Product) (int, error) {
 	defer cancel()
 
 	err := r.db.QueryRow(ctx, "INSERT INTO product (shop_id, name, description, sizes, colors, weight, price, rating, category_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id",
-		product.ShopID, product.Name, product.Description, pq.Array(product.Sizes), pq.Array(product.Colors), product.Weight, product.Price, 0, product.CategoryID).Scan(&id)
+		product.ShopID, product.Name, product.Description, pq.Array(product.Sizes), pq.Array(product.Colors), product.Weight, product.Price, 9.1, product.CategoryID).Scan(&id)
 	if err != nil {
 		r.logger.Errorf("db error: %s", err)
 		if errors.Is(err, pgx.ErrNoRows) {
