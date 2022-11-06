@@ -600,6 +600,8 @@ const OrderItem = ({
 const Head = () => {
   const [userData, setUserData] = useState<null | UserData>(null);
 
+  const [open, setOpen] = useState(false);
+
   useEffect(() => {
     const user = localStorage.getItem("userData");
 
@@ -648,9 +650,142 @@ const Head = () => {
             >
               Пополнить счет
             </button>
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+            >
+              Добавить товар
+            </button>
+            <Transition.Root show={open} as={Fragment}>
+              <Dialog as="div" className="relative z-10" onClose={setOpen}>
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <div className="fixed inset-0 hidden bg-gray-500 bg-opacity-75 transition-opacity md:block" />
+                </Transition.Child>
+
+                <div className="fixed inset-0 z-10 overflow-y-auto">
+                  <div className="flex min-h-full items-stretch justify-center text-center md:items-center md:px-2 lg:px-4">
+                    <Transition.Child
+                      as={Fragment}
+                      enter="ease-out duration-300"
+                      enterFrom="opacity-0 translate-y-4 md:translate-y-0 md:scale-95"
+                      enterTo="opacity-100 translate-y-0 md:scale-100"
+                      leave="ease-in duration-200"
+                      leaveFrom="opacity-100 translate-y-0 md:scale-100"
+                      leaveTo="opacity-0 translate-y-4 md:translate-y-0 md:scale-95"
+                    >
+                      <Dialog.Panel className="flex w-full transform text-left text-base transition md:my-8 md:max-w-2xl md:px-4 lg:max-w-2xl">
+                        <div className="relative flex w-full items-center overflow-hidden bg-white px-4 pt-14 pb-8 shadow-2xl sm:px-6 sm:pt-8 md:p-6 lg:p-8">
+                          <button
+                            type="button"
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-500 sm:top-8 sm:right-6 md:top-6 md:right-6 lg:top-8 lg:right-8"
+                            onClick={() => setOpen(false)}
+                          >
+                            <span className="sr-only">Close</span>
+                            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                          </button>
+
+                          <AddProduct setOpen={() => setOpen(false)} />
+                        </div>
+                      </Dialog.Panel>
+                    </Transition.Child>
+                  </div>
+                </div>
+              </Dialog>
+            </Transition.Root>
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+const AddProduct = ({ setOpen }: { setOpen: () => void }) => {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [weight, setWeight] = useState(0);
+  const [price, setPrice] = useState(0);
+
+  const handleAdd = () => {
+    const data = {
+      sizes: ["small", "medium"],
+      colors: [2, 1, 3],
+      category_id: 1,
+      shop_id: 1,
+      name,
+      description,
+      weight: parseInt(weight),
+      price: parseInt(price),
+    };
+    instance.post("/api/categories/1/products", data);
+    setOpen();
+  };
+
+  return (
+    <div>
+      <div className="sm:col-span-3">
+        <label className="block text-sm font-medium text-gray-700">
+          Название
+        </label>
+        <div className="mt-1">
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+        </div>
+      </div>
+      <div className="sm:col-span-3">
+        <label className="block text-sm font-medium text-gray-700">
+          Описание
+        </label>
+        <div className="mt-1">
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+        </div>
+      </div>
+      <div className="sm:col-span-3">
+        <label className="block text-sm font-medium text-gray-700">Вес</label>
+        <div className="mt-1">
+          <input
+            type="number"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+        </div>
+      </div>
+      <div className="sm:col-span-3">
+        <label className="block text-sm font-medium text-gray-700">Цена</label>
+        <div className="mt-1">
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={handleAdd}
+        className=" mt-2 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+      >
+        Добавить товар
+      </button>
     </div>
   );
 };
