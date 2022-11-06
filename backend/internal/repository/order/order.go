@@ -31,9 +31,9 @@ func (o *OrderRepo) GetAll(userID string) ([]*models.Order, error) {
 	defer cancel()
 
 	role := ""
-	var shopID *int
+	var sID sql.NullInt64
 	query := `SELECT role, shop_id FROM users WHERE id=$1`
-	err := o.db.QueryRow(ctx, query, userID).Scan(&role, shopID)
+	err := o.db.QueryRow(ctx, query, userID).Scan(&role, &sID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			o.logger.Errorf("invite does not exist: %s", err)
@@ -79,6 +79,7 @@ func (o *OrderRepo) GetAll(userID string) ([]*models.Order, error) {
 	} else {
 		query = `SELECT * FROM orders WHERE shop_id=$1`
 
+		shopID := sID.Int64
 		rows, err := o.db.Query(ctx, query, shopID)
 		if err != nil {
 			o.logger.Errorf("db error: %s", err)
