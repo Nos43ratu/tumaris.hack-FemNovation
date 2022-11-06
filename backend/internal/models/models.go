@@ -12,17 +12,19 @@ type User struct {
 }
 
 type UserInfo struct {
-	ID        int     `json:"id,omitempty"`
-	Email     string  `json:"email"`
-	Phone     string  `json:"phone_number"`
-	FirstName string  `json:"first_name"`
-	LastName  string  `json:"last_name"`
-	Password  string  `json:"password"`
-	Role      string  `json:"role,omitempty"`
-	AboutMe   string  `json:"about_me"`
-	Instagram string  `json:"instagram"`
-	Rating    float64 `json:"rating"`
-	ShopID    int     `json:"shop_id"`
+	ID        int         `json:"id,omitempty"`
+	Email     string      `json:"email"`
+	Phone     string      `json:"phone_number"`
+	FirstName string      `json:"first_name"`
+	LastName  string      `json:"last_name"`
+	Password  string      `json:"password"`
+	Role      string      `json:"role,omitempty"`
+	AboutMe   string      `json:"about_me"`
+	Instagram string      `json:"instagram"`
+	Rating    float64     `json:"rating"`
+	ShopID    int         `json:"shop_id"`
+	CreatedAt pq.NullTime `json:"created_at"`
+	UpdatedAt pq.NullTime `json:"updated_at"`
 }
 
 type Tokens struct {
