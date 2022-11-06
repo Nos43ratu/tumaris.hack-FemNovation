@@ -22,7 +22,7 @@ type UserInfo struct {
 	AboutMe   string      `json:"about_me"`
 	Instagram string      `json:"instagram"`
 	Rating    float64     `json:"rating"`
-	ShopID    int         `json:"shop_id"`
+	ShopID    *int        `json:"shop_id"`
 	CreatedAt pq.NullTime `json:"created_at"`
 	UpdatedAt pq.NullTime `json:"updated_at"`
 }
@@ -54,8 +54,8 @@ type Product struct {
 }
 
 type ProductFilter struct {
-	Search   string      `json:"search"`
-	ShopID      string      `json:"shop_id"`
+	Search string `json:"search"`
+	ShopID string `json:"shop_id"`
 }
 type Order struct {
 	ID           int         `json:"id,omitempty"`
