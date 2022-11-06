@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) GetUser(c *gin.Context) {
-	email := c.Param("email")
+	email := c.Request.URL.Query().Get("email")
 
 	log.Printf("[%s]", email)
 	info, err := h.service.Users.GetByEmail(email)
