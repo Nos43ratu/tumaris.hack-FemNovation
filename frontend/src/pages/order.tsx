@@ -14,74 +14,10 @@ import { useSearchParams } from "react-router-dom";
 import clsx from "clsx";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useCartStore } from "@/shared/ui/Layout";
+import { instance } from "@/shared/api/axios.instance";
 
-const fakeApi = (): Promise<Product[]> =>
-  new Promise((resolve) => {
-    return setTimeout(() => {
-      resolve([
-        {
-          id: 1,
-          name: "Бутылка",
-          description:
-            "Очень классная бутыл, купил себе, маме, отцу, брату, сестренке, жене, теще, свату",
-          product_categories: "",
-          product_sizes: "",
-          colors: "",
-          weight: "5",
-          product_comments: "",
-          price: "48",
-          rating: 4,
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
-        },
-        {
-          id: 2,
-          name: "Бутылка",
-          description:
-            "Очень классная бутыл, купил себе, маме, отцу, брату, сестренке, жене, теще, свату",
-          product_categories: "",
-          product_sizes: "",
-          colors: "",
-          weight: "5",
-          product_comments: "",
-          price: "48",
-          rating: 4,
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
-        },
-        {
-          id: 3,
-          name: "Блокнот",
-          description:
-            "Очень классная бутыл, купил себе, маме, отцу, брату, сестренке, жене, теще, свату",
-          product_categories: "",
-          product_sizes: "",
-          colors: "",
-          weight: "5",
-          product_comments: "",
-          price: "48",
-          rating: 4,
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
-        },
-        {
-          id: 4,
-          name: "ручка",
-          description:
-            "Очень классная бутыл, купил себе, маме, отцу, брату, сестренке, жене, теще, свату",
-          product_categories: "",
-          product_sizes: "",
-          colors: "",
-          weight: "5",
-          product_comments: "",
-          price: "48",
-          rating: 4,
-          imageSrc:
-            "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
-        },
-      ]);
-    }, 1000);
-  });
+const getProducts = (params = ""): Promise<ApiResponse<Product[]>> =>
+  instance.get("/api/products" + params);
 
 const subCategories = [
   { name: "Торты", href: "#" },
@@ -209,12 +145,16 @@ const Search = () => {
 };
 
 const Products = () => {
-  const { data, isLoading } = useQuery({
-    queryKey: ["products"],
-    queryFn: fakeApi,
-  });
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search");
+
+  const { data, isLoading } = useQuery(["products"], () =>
+    getProducts(search ? `?search=${search}` : "")
+  );
 
   const [parent] = useAutoAnimate<HTMLDivElement | null>();
+
+  const products = data?.data?.response?.data;
 
   return (
     <div className="lg:col-span-3">
@@ -223,7 +163,7 @@ const Products = () => {
           className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
           ref={parent}
         >
-          {data?.map((product) => (
+          {products?.map((product) => (
             <ProductItem key={product.id} product={product} />
           ))}
         </div>
@@ -254,6 +194,13 @@ const Products = () => {
   );
 };
 
+const images = [
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
+];
+
 const ProductItem = ({ product }: { product: Product }) => {
   const cart = useCartStore();
   const [open, setOpen] = useState(false);
@@ -267,7 +214,7 @@ const ProductItem = ({ product }: { product: Product }) => {
       >
         <div className="aspect-w-1 aspect-h-1 xl:aspect-w-7 xl:aspect-h-8 w-full overflow-hidden rounded-lg bg-gray-200">
           <img
-            src={product.imageSrc}
+            src={images[product.id ?? 0]}
             className="h-full w-full object-cover object-center group-hover:opacity-75"
           />
         </div>
@@ -320,7 +267,7 @@ const ProductItem = ({ product }: { product: Product }) => {
                     <div className="grid w-full grid-cols-1 items-start gap-y-8 gap-x-6 sm:grid-cols-12 lg:gap-x-8">
                       <div className="aspect-w-2 aspect-h-3 overflow-hidden rounded-lg bg-gray-100 sm:col-span-4 lg:col-span-5">
                         <img
-                          src={product.imageSrc}
+                          src={images[product.id ?? 0]}
                           className="object-cover object-center"
                         />
                       </div>

@@ -1,20 +1,43 @@
 import React from "react";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { instance } from "@/shared/api/axios.instance";
+
+const signIn = (data: {
+  email: string;
+  password: string;
+}): Promise<ApiResponse<UserData>> => instance.post("/api/sign-in", data);
 
 const SignIn = () => {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const [email, setEmail] = React.useState("KLeya@gmail.com");
+  const [password, setPassword] = React.useState("3Om1#m5Dfg^@cpgk");
   const navigate = useNavigate();
 
   const mutation = useMutation({
-    mutationFn: (data: { email: string; password: string }) =>
-      axios.post("/api/sign-in", data),
-    onSuccess: (data: any) => {
-      if (!data.error) {
+    mutationFn: (data: { email: string; password: string }) => signIn(data),
+    onSuccess: (data: {
+      data: {
+        error: null | string;
+        response: {
+          data: {
+            id: number;
+            email: string;
+            password: string;
+            role: string;
+          };
+          status: number;
+        };
+      };
+    }) => {
+      if (!data?.data?.error) {
+        if (data?.data?.response?.data?.role === "shop")
+          return navigate("/shop");
+        window.localStorage.setItem(
+          "userData",
+          JSON.stringify(data?.data?.response?.data)
+        );
         return navigate("/cabinet/orders");
       }
       return toast.error("Не верный логин или пароль");

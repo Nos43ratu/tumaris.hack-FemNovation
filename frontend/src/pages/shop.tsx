@@ -31,7 +31,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const Cabinet = () => {
+const Shop = () => {
   return (
     <main className="flex-1 pb-8">
       {/* Page header */}
@@ -794,4 +794,4 @@ export const Tenge = () => (
     alt=""
   />
 );
-export default Cabinet;
+export default Shop;
