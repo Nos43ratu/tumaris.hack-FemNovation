@@ -45,15 +45,9 @@ func (h *Handler) UpdateOrder(c *gin.Context) {
 }
 
 func (h *Handler) GetAllOrders(c *gin.Context) {
-	user := &models.User{}
+	userID := c.Param("user_id")
 
-	if err := parseJSON(c, user); err != nil {
-		h.logger.Errorf("[ERROR]: [%s] bad request error: %s", err.Error())
-		c.JSON(400, CreateResponse(models.StatusError, nil, models.ErrInvalidInput))
-		return
-	}
-
-	orders, err := h.service.Order.GetAll(user)
+	orders, err := h.service.Order.GetAll(userID)
 	if err != nil {
 		h.logger.Errorf("[ERROR]: error getting ALL orders", err)
 		c.JSON(500, CreateResponse(models.StatusError, nil, models.ErrInternalServer))

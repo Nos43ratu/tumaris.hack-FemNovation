@@ -26,14 +26,14 @@ func NewOrderRepo(logger *zap.SugaredLogger, db *pgxpool.Pool, timeout time.Dura
 	}
 }
 
-func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
+func (o *OrderRepo) GetAll(userID string) ([]*models.Order, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), o.timeout)
 	defer cancel()
 
 	role := ""
 	shopID := 0
 	query := `SELECT role, shop_id FROM users WHERE id=$1`
-	err := o.db.QueryRow(ctx, query, user.ID).Scan(&role, &shopID)
+	err := o.db.QueryRow(ctx, query, userID).Scan(&role, &shopID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			o.logger.Errorf("invite does not exist: %s", err)
@@ -46,7 +46,7 @@ func (o *OrderRepo) GetAll(user *models.User) ([]*models.Order, error) {
 	if role == "client" {
 		query = `SELECT * FROM orders WHERE client_id=$1`
 
-		rows, err := o.db.Query(ctx, query, user.ID)
+		rows, err := o.db.Query(ctx, query, userID)
 		if err != nil {
 			o.logger.Errorf("db error: %s", err)
 			return nil, models.ErrDBConnection

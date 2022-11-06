@@ -26,8 +26,8 @@ func (o *OrderService) Update(orderID string, order *models.Order) error {
 	return o.Order.Update(orderID, order)
 }
 
-func (o *OrderService) GetAll(user *models.User) ([]*models.Order, error) {
-	orders, err := o.Order.GetAll(user)
+func (o *OrderService) GetAll(userID string) ([]*models.Order, error) {
+	orders, err := o.Order.GetAll(userID)
 	if err != nil {
 		return nil, err
 	}
