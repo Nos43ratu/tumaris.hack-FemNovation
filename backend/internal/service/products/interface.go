@@ -9,4 +9,6 @@ type Service interface {
 	UpdateProduct(product *models.Product) (int, error)
 	DeleteProduct(ID int) (error)
 	GetProduct(ID int) (*models.Product, error)
+	GetProductsByCategory(ID int) ([]*models.Product, error)
+	GetProducts() ([]*models.Product, error)
 }

@@ -7,5 +7,6 @@ type Products interface {
 	UpdateProduct(product *models.Product) (int, error)
 	GetProductByID(ID int) (*models.Product, error)
 	DeleteProduct(ID int) (error)
-	// GetUserByID(ID int) (*models.User, error)
+	GetProductsByCategory(ID int) ([]*models.Product, error)
+	GetProducts() ([]*models.Product, error)
 }

@@ -48,7 +48,6 @@ func (h *Handler)CreateOrUpdateProduct(c *gin.Context){
 		}
 		h.logger.Infof("[SUCCESS]: updated product with id %s", id)
 		c.JSON(200, CreateResponse(models.StatusOK, id, nil))
-		// here update product
 	}
 }
 
@@ -112,6 +111,45 @@ func (h *Handler)GetProduct(c *gin.Context){
 			return
 		}
 		h.logger.Infof("[SUCCESS]: deleted product with id %s", id)
+		c.JSON(200, CreateResponse(models.StatusOK, res, nil))
+	}
+}
+
+func (h *Handler)GetProducts(c *gin.Context){
+	var err error
+	categoryID := c.Param("category_id")
+	var id int
+	if categoryID == "" {
+		res, err := h.service.Products.GetProducts()
+		if err != nil {
+			if err == models.ErrNoRows {
+				c.JSON(400, CreateResponse(models.StatusError, nil, models.ErrInvalidInput))
+				return
+			}
+			c.JSON(500, CreateResponse(models.StatusError, nil, models.ErrInternalServer))
+			return
+		}
+		h.logger.Infof("[SUCCESS]: gets products")
+		c.JSON(200, CreateResponse(models.StatusOK, res, nil))
+	} else {
+		id, err = strconv.Atoi(categoryID)
+		if err != nil {
+			h.logger.Errorf("[ERROR]: [%s] error during conversion: %s", categoryID, err.Error())
+	
+			c.JSON(500, CreateResponse(models.StatusError, nil, models.ErrInternalServer))
+			return
+		}
+
+		res, err := h.service.Products.GetProductsByCategory(id)
+		if err != nil {
+			if err == models.ErrNoRows {
+				c.JSON(400, CreateResponse(models.StatusError, nil, models.ErrInvalidInput))
+				return
+			}
+			c.JSON(500, CreateResponse(models.StatusError, nil, models.ErrInternalServer))
+			return
+		}
+		h.logger.Infof("[SUCCESS]: get products with category id %s", id)
 		c.JSON(200, CreateResponse(models.StatusOK, res, nil))
 	}
 }

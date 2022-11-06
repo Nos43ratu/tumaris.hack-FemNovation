@@ -65,3 +65,11 @@ func (s *ProductsService) DeleteProduct(ID int) error {
 func (s *ProductsService) GetProduct(ID int) (*models.Product, error) {
 	return s.products.GetProductByID(ID)
 }
+
+func (s *ProductsService) GetProductsByCategory(ID int) ([]*models.Product, error) {
+	return s.products.GetProductsByCategory(ID)
+}
+
+func (s *ProductsService) GetProducts() ([]*models.Product, error) {
+	return s.products.GetProducts()
+}
