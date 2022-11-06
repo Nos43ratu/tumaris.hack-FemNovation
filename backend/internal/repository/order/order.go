@@ -55,8 +55,7 @@ func (o *OrderRepo) GetAll(userID string) ([]*models.Order, error) {
 
 		var orders []*models.Order
 		for rows.Next() {
-			var order *models.Order
-
+			order := &models.Order{}
 			reason := &sql.NullString{}
 			err = rows.Scan(&order.ID, &order.Status, &order.ClientID, &order.ShopID, &order.ProductID, &order.CreatedAt, &order.PayedAt, &order.PackedAt, &order.DeliveredAt, reason)
 			if err != nil {
