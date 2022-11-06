@@ -3,8 +3,8 @@ package products
 import (
 	"context"
 	"errors"
-	"time"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -32,8 +32,8 @@ func (r *ProductsRepo) CreateProduct(product *models.Product) (int, error) {
 	var id int
 	defer cancel()
 
-	err := r.db.QueryRow(ctx, "INSERT INTO product (shop_id, name, description, sizes, colors, weight, price, category_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) returning id",
-	product.ShopID, product.Name, product.Description, pq.Array(product.Sizes), pq.Array(product.Colors), product.Weight, product.Price, product.CategoryID).Scan(&id)
+	err := r.db.QueryRow(ctx, "INSERT INTO product (shop_id, name, description, sizes, colors, weight, price, rating, category_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id",
+		product.ShopID, product.Name, product.Description, pq.Array(product.Sizes), pq.Array(product.Colors), product.Weight, product.Price, 0, product.CategoryID).Scan(&id)
 	if err != nil {
 		r.logger.Errorf("db error: %s", err)
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -91,7 +91,7 @@ func (r *ProductsRepo) GetProductByID(ID int) (*models.Product, error) {
 	return res, nil
 }
 
-func (r *ProductsRepo) DeleteProduct(ID int) (error) {
+func (r *ProductsRepo) DeleteProduct(ID int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), r.timeout)
 	defer cancel()
 
@@ -144,21 +144,21 @@ func (r *ProductsRepo) GetProducts(filter *models.ProductFilter) ([]*models.Prod
 	var products []*models.Product
 
 	query := `SELECT id, shop_id, name, description, sizes, colors, weight, price, rating, category_id FROM product`
-	
+
 	if filter.Search != "" {
 		query = query + fmt.Sprintf(" where (name LIKE '%%%s%%' OR description LIKE '%%%s%%')", filter.Search, filter.Search)
 	}
 	if filter.ShopID != "" {
 		if filter.Search != "" {
 			query = query + fmt.Sprintf(" and shop_id = %s", filter.ShopID)
-		}else {
+		} else {
 			query = query + fmt.Sprintf(" where shop_id = %s", filter.ShopID)
 		}
 
 	}
 
 	fmt.Println(query)
-	
+
 	rows, err := r.db.Query(ctx, query)
 	// Scan(&res.ProductID, &res.ShopID, &res.Name, &res.Description, pq.Array(&res.Sizes), &res.Colors, &res.Weight, &res.Price, &res.Rating, &res.CategoryID)
 	if err != nil {
