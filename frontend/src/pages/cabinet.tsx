@@ -139,15 +139,15 @@ const OrderList = () => {
               <li key={order.id}>
                 <button
                   onClick={() => setActiveOrder(order.id)}
-                  className="block bg-white px-4 py-4 hover:bg-gray-50"
+                  className="block w-full bg-white px-4 py-4 hover:bg-gray-50"
                 >
-                  <span className="flex items-center space-x-4">
+                  <span className="flex w-full items-center space-x-4">
                     <span className="flex flex-1 space-x-2 truncate">
                       <BanknotesIcon
                         className="h-5 w-5 flex-shrink-0 text-gray-400"
                         aria-hidden="true"
                       />
-                      <span className="flex flex-col truncate text-sm text-gray-500">
+                      <span className="flex w-full justify-between truncate text-sm text-gray-500">
                         <span className="truncate">
                           {order?.products?.name}
                         </span>
@@ -213,11 +213,7 @@ const OrderList = () => {
                 >
                   {isLoading ? (
                     <tr>
-                      <td
-                        colSpan="100%"
-                        align="center"
-                        className="py-10 text-blue-600"
-                      >
+                      <td align="center" className="py-10 text-blue-600">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="10 10 80 80"
@@ -231,9 +227,9 @@ const OrderList = () => {
                             cx="50"
                             cy="50"
                             fill="none"
-                            stroke-width="10"
+                            strokeWidth="10"
                             r="35"
-                            stroke-dasharray="164.93361431346415 56.97787143782138"
+                            strokeDasharray="164.93361431346415 56.97787143782138"
                           />
                         </svg>
                       </td>
@@ -290,29 +286,7 @@ const OrderList = () => {
 };
 
 const getOrderItem = (id: number): Promise<ApiResponse<Order>> =>
-  instance.get(`/api/users/${id}/orders`);
-
-const getProduct = (id: number): Promise<ApiResponse<Product>> =>
-  new Promise((resolve) => {
-    setTimeout(() =>
-      resolve({
-        error: null,
-        response: {
-          status: 0,
-          data: {
-            shop_id: 1,
-            name: "soap",
-            description: "the best soap eva",
-            sizes: ["small", "medium"],
-            colors: [2, 1, 3],
-            weight: 1.25,
-            price: 100.5,
-            category_id: 1,
-          },
-        },
-      })
-    );
-  });
+  instance.get(`/api/orders/${id}`);
 
 const OrderItem = ({
   open,
@@ -329,14 +303,6 @@ const OrderItem = ({
     enabled: !!id,
   });
 
-  const { data: productData, isLoading: productIsLoading } = useQuery<
-    ApiResponse<Product>
-  >({
-    queryKey: ["product", orderData?.data?.response.data.product_id],
-    queryFn: () => getProduct(orderData?.data?.response.data.product_id || 0),
-    enabled: !!orderData,
-  });
-
   const timeLine = useMemo(() => {
     if (!orderData) return [];
 
@@ -348,7 +314,7 @@ const OrderItem = ({
         type: eventTypes.created,
         content: "Заказ ",
         target: "Создан",
-        active: !!data?.created_at?.Valid,
+        active: !data?.cancel_reason && !!data?.created_at?.Valid,
         date: data?.created_at?.Valid
           ? formatTime(data?.created_at?.Time)
           : null,
@@ -383,13 +349,22 @@ const OrderItem = ({
         type: eventTypes.created,
         content: "Доставлен",
         target: "на указанный адрес",
-        active: !!data?.delivered_at?.Valid,
+        active: !data?.cancel_reason || !!data?.delivered_at?.Valid,
         date: data?.delivered_at?.Valid
           ? formatTime(data?.delivered_at?.Time)
           : null,
         datetime: data?.delivered_at?.Valid
           ? formatTime(data?.delivered_at?.Time)
           : null,
+      },
+      {
+        id: 4,
+        type: eventTypes.canceled,
+        content: "Заказ",
+        target: "Отменен",
+        active: !!data?.cancel_reason,
+        date: "",
+        datetime: "",
       },
     ];
   }, [orderData]);
@@ -404,9 +379,10 @@ const OrderItem = ({
 
   const mutation = useMutation({
     mutationFn: () =>
-      axios.post("/api/orders/" + id, { status: "-1", cancel_reason: "a" }),
+      instance.post("/api/orders/" + id, { status: -1, cancel_reason: "a" }),
     onSuccess: () => {
-      queryClient.refetchQueries("orders");
+      queryClient.refetchQueries(["orders"]);
+      setOpen();
     },
   });
 
@@ -451,7 +427,7 @@ const OrderItem = ({
                     <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
 
-                  {orderIsloading || productIsLoading ? (
+                  {orderIsloading ? (
                     <div>loading</div>
                   ) : (
                     <main className="py-10">
@@ -475,7 +451,10 @@ const OrderItem = ({
                                       Название товара
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.name}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.name
+                                      }
                                     </dd>
                                   </div>
                                   <div className="sm:col-span-1">
@@ -491,7 +470,10 @@ const OrderItem = ({
                                       Цена
                                     </dt>
                                     <dd className="mt-1 flex items-center text-sm text-gray-900">
-                                      {productData?.response?.data?.price}{" "}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.price
+                                      }{" "}
                                       <Tenge />
                                     </dd>
                                   </div>
@@ -500,7 +482,10 @@ const OrderItem = ({
                                       Вес
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.weight}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.weight
+                                      }
                                     </dd>
                                   </div>
                                   <div className="sm:col-span-2">
@@ -508,7 +493,10 @@ const OrderItem = ({
                                       Описание
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.description}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.description
+                                      }
                                     </dd>
                                   </div>
                                 </dl>
