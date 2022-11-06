@@ -86,5 +86,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	api.GET("/orders", h.GetAllOrders)
 	api.GET("/orders/:order_id", h.GetOrder)
 
+	api.GET("/users", h.GetUser)
+
 	return router
 }

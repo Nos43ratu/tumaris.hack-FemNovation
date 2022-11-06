@@ -3,15 +3,18 @@ package order
 import (
 	"tumaris.hack-FemNovation/backend/internal/models"
 	"tumaris.hack-FemNovation/backend/internal/repository/order"
+	"tumaris.hack-FemNovation/backend/internal/repository/products"
 )
 
 type OrderService struct {
-	Order order.Order
+	Order    order.Order
+	Products products.Products
 }
 
-func NewOrderService(order order.Order) Service {
+func NewOrderService(order order.Order, products products.Products) Service {
 	return &OrderService{
-		Order: order,
+		Order:    order,
+		Products: products,
 	}
 }
 
@@ -24,9 +27,31 @@ func (o *OrderService) Update(orderID string, order *models.Order) error {
 }
 
 func (o *OrderService) GetAll(user *models.User) ([]*models.Order, error) {
-	return o.Order.GetAll(user)
+	orders, err := o.Order.GetAll(user)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, order := range orders {
+		order.Products, err = o.Products.GetProductByID(order.ProductID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return orders, nil
 }
 
 func (o *OrderService) GetByID(orderID string) (*models.Order, error) {
-	return o.Order.GetByID(orderID)
+	order, err := o.Order.GetByID(orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	order.Products, err = o.Products.GetProductByID(order.ProductID)
+	if err != nil {
+		return nil, err
+	}
+
+	return order, nil
 }
