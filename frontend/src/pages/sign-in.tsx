@@ -32,12 +32,13 @@ const SignIn = () => {
       };
     }) => {
       if (!data?.data?.error) {
-        if (data?.data?.response?.data?.role === "shop")
-          return navigate("/shop");
         window.localStorage.setItem(
           "userData",
           JSON.stringify(data?.data?.response?.data)
         );
+        if (data?.data?.response?.data?.role === "shop")
+          return navigate("/shop");
+
         return navigate("/cabinet/orders");
       }
       return toast.error("Не верный логин или пароль");

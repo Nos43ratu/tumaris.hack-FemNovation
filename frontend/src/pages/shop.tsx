@@ -6,7 +6,9 @@ import {
   CheckIcon,
   ChevronRightIcon,
   HandThumbUpIcon,
-  QuestionMarkCircleIcon,
+  HandRaisedIcon,
+  CurrencyDollarIcon,
+  GlobeAmericasIcon,
   StarIcon,
   UserIcon,
 } from "@heroicons/react/20/solid";
@@ -18,12 +20,16 @@ import { Dialog, Transition } from "@headlessui/react";
 import order from "@/pages/order";
 import axios from "axios";
 import { queryClient } from "@/app/app";
+import { getUser } from "@/shared/ui/Layout";
 
 const eventTypes = {
-  created: { icon: UserIcon, bgColorClass: "bg-yellow-400" },
-  payed: { icon: CheckIcon, bgColorClass: "bg-blue-500" },
-  packed: { icon: HandThumbUpIcon, bgColorClass: "bg-green-500" },
-  delivered: { icon: CheckIcon, bgColorClass: "bg-green-500" },
+  pending: { icon: UserIcon, bgColorClass: "bg-yellow-400" },
+  waiting: { icon: CurrencyDollarIcon, bgColorClass: "bg-blue-500" },
+  inProgress: { icon: HandThumbUpIcon, bgColorClass: "bg-green-500" },
+  inDelivery: { icon: HandRaisedIcon, bgColorClass: "bg-green-500" },
+  delivering: { icon: GlobeAmericasIcon, bgColorClass: "bg-green-500" },
+  delivered: { icon: HandThumbUpIcon, bgColorClass: "bg-red-500" },
+  error: { icon: XMarkIcon, bgColorClass: "bg-red-500" },
   canceled: { icon: XMarkIcon, bgColorClass: "bg-red-500" },
 };
 
@@ -31,7 +37,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const Shop = () => {
+const Cabinet = () => {
   return (
     <main className="flex-1 pb-8">
       {/* Page header */}
@@ -61,9 +67,7 @@ const status = {
     "3": "bg-gray-100 text-gray-800",
     "4": "bg-gray-100 text-gray-800",
     "5": "bg-gray-100 text-gray-800",
-    "-10": "bg-gray-100 text-gray-800",
     "-1": "bg-gray-100 text-gray-800",
-    "-2": "bg-gray-100 text-gray-800",
   },
   text: {
     0: "Ожидает ответа",
@@ -72,9 +76,7 @@ const status = {
     3: "Передан курьеру",
     4: "Ожидает доставки",
     5: "Доставлен",
-    "-10": "Ошибка системы",
     "-1": "Отменен",
-    "-2": "Отменен",
   },
 };
 
@@ -306,65 +308,58 @@ const OrderItem = ({
   const timeLine = useMemo(() => {
     if (!orderData) return [];
 
+    const status = parseInt(orderData.data.response.data.status);
     const data = orderData.data.response.data;
 
     return [
       {
         id: 1,
-        type: eventTypes.created,
+        type: eventTypes.pending,
         content: "Заказ ",
         target: "Создан",
-        active: !data?.cancel_reason && !!data?.created_at?.Valid,
-        date: data?.created_at?.Valid
-          ? formatTime(data?.created_at?.Time)
-          : null,
-        datetime: data?.created_at?.Valid
-          ? formatTime(data?.created_at?.Time)
-          : null,
+        active: !data?.cancel_reason && status >= 0,
       },
       {
         id: 2,
-        type: eventTypes.payed,
+        type: eventTypes.waiting,
         content: "Заказ",
-        target: "Оплачен",
-        active: !!data?.payed_at?.Valid,
-        date: data?.payed_at?.Valid ? formatTime(data?.payed_at?.Time) : null,
-        datetime: data?.payed_at?.Valid
-          ? formatTime(data?.payed_at?.Time)
-          : null,
+        target: "Ожидает оплаты",
+        active: !data?.cancel_reason && status >= 1,
       },
       {
         id: 3,
-        type: eventTypes.packed,
+        type: eventTypes.inProgress,
         content: "Взят в обработку",
         target: "Исполнителем",
-        active: !!data?.packed_at?.Valid,
-        date: data?.packed_at?.Valid ? formatTime(data?.packed_at?.Time) : null,
-        datetime: data?.packed_at?.Valid
-          ? formatTime(data?.packed_at?.Time)
-          : null,
+        active: !data?.cancel_reason && status >= 2,
       },
       {
         id: 4,
-        type: eventTypes.created,
-        content: "Доставлен",
-        target: "на указанный адрес",
-        active: !data?.cancel_reason || !!data?.delivered_at?.Valid,
-        date: data?.delivered_at?.Valid
-          ? formatTime(data?.delivered_at?.Time)
-          : null,
-        datetime: data?.delivered_at?.Valid
-          ? formatTime(data?.delivered_at?.Time)
-          : null,
+        type: eventTypes.inDelivery,
+        content: "Заказ",
+        target: "Передан курьеру",
+        active: !data?.cancel_reason && status >= 3,
       },
       {
-        id: 4,
+        id: 5,
+        type: eventTypes.delivering,
+        content: "Заказ",
+        target: "Ожидает доставки",
+        active: !data?.cancel_reason && status >= 4,
+      },
+      {
+        id: 6,
+        type: eventTypes.delivered,
+        content: "Заказ",
+        target: "Доставлен",
+        active: !data?.cancel_reason && status >= 5,
+      },
+      {
+        id: 7,
         type: eventTypes.canceled,
         content: "Заказ",
         target: "Отменен",
         active: !!data?.cancel_reason,
-        date: "",
-        datetime: "",
       },
     ];
   }, [orderData]);
@@ -378,16 +373,19 @@ const OrderItem = ({
   }, []);
 
   const mutation = useMutation({
-    mutationFn: () =>
-      instance.post("/api/orders/" + id, { status: -1, cancel_reason: "a" }),
+    mutationFn: (status) =>
+      instance.post("/api/orders/" + id, {
+        status: parseInt(status, 10),
+        cancel_reason: -1 === parseInt(status, 10) ? "asd" : "",
+      }),
     onSuccess: () => {
       queryClient.refetchQueries(["orders"]);
       setOpen();
     },
   });
 
-  const calcelOrder = () => {
-    return mutation.mutate();
+  const calcelOrder = (status) => {
+    return mutation.mutate(status);
   };
 
   return (
@@ -561,11 +559,7 @@ const OrderItem = ({
                                               </a>
                                             </p>
                                           </div>
-                                          <div className="whitespace-nowrap text-right text-sm text-gray-500">
-                                            <time dateTime={item.datetime}>
-                                              {item.date}
-                                            </time>
-                                          </div>
+                                          <div className="whitespace-nowrap text-right text-sm text-gray-500"></div>
                                         </div>
                                       </div>
                                     </div>
@@ -574,13 +568,19 @@ const OrderItem = ({
                               </ul>
                             </div>
                             <div className="justify-stretch mt-6 flex flex-col">
-                              <button
-                                type="button"
-                                onClick={calcelOrder}
-                                className="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                              <select
+                                id="location"
+                                name="location"
+                                className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                                onChange={(e) => calcelOrder(e.target.value)}
+                                defaultValue={`${orderData?.data?.response?.data?.status}`}
                               >
-                                Отменить заказ
-                              </button>
+                                {Object.entries(status.text).map(
+                                  ([key, value]) => (
+                                    <option value={key}>{value}</option>
+                                  )
+                                )}
+                              </select>
                             </div>
                           </div>
                         </section>
@@ -655,43 +655,116 @@ const Head = () => {
   );
 };
 
-const Info = () => (
-  <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-    <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      <div className="overflow-hidden rounded-lg bg-white shadow">
-        <div className="p-5">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <ScaleIcon className="h-6 w-6 text-gray-400" aria-hidden="true" />
+const Info = () => {
+  const [userData, setUserData] = useState<null | UserData>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("userData");
+    user && setUserData(JSON.parse(user));
+  }, []);
+  const { data } = useQuery(["user"], () => getUser(userData?.email ?? ""), {
+    enabled: userData !== null,
+  });
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="overflow-hidden rounded-lg bg-white shadow">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ScaleIcon
+                  className="h-6 w-6 text-gray-400"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="truncate text-sm font-medium text-gray-500">
+                    Баланс
+                  </dt>
+                  <dd>
+                    <div className="flex items-center text-lg font-medium text-gray-900">
+                      13 364{" "}
+                      <img
+                        className="object-fit h-2.5 w-2"
+                        src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Tenge_symbol.svg"
+                        alt=""
+                      />
+                    </div>
+                  </dd>
+                </dl>
+              </div>
             </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="truncate text-sm font-medium text-gray-500">
-                  Баланс
-                </dt>
-                <dd>
-                  <div className="flex items-center text-lg font-medium text-gray-900">
-                    123 344{" "}
-                    <img
-                      className="object-fit h-2.5 w-2"
-                      src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Tenge_symbol.svg"
-                      alt=""
-                    />
-                  </div>
-                </dd>
-              </dl>
+          </div>
+          <div className="bg-gray-50 px-5 py-3">
+            <div className="text-sm">
+              <a className="font-medium text-cyan-700 hover:text-cyan-900"> </a>
             </div>
           </div>
         </div>
-        <div className="bg-gray-50 px-5 py-3">
-          <div className="text-sm">
-            <a className="font-medium text-cyan-700 hover:text-cyan-900"> </a>
+        <div className="overflow-hidden rounded-lg bg-white shadow">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ScaleIcon
+                  className="h-6 w-6 text-gray-400"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="truncate text-sm font-medium text-gray-500">
+                    Рейтинг
+                  </dt>
+                  <dd>
+                    <div className="flex items-center text-lg font-medium text-gray-900">
+                      {data?.data?.response?.data?.rating}
+                    </div>
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-50 px-5 py-3">
+            <div className="text-sm">
+              <a className="font-medium text-cyan-700 hover:text-cyan-900"> </a>
+            </div>
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-lg bg-white shadow">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ScaleIcon
+                  className="h-6 w-6 text-gray-400"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="truncate text-sm font-medium text-gray-500">
+                    Данные
+                  </dt>
+                  <dd>
+                    <div className="flex items-center text-lg font-medium text-gray-900">
+                      {data?.data?.response?.data?.about_me}
+                    </div>
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-50 px-5 py-3">
+            <div className="text-sm">
+              <a className="font-medium text-cyan-700 hover:text-cyan-900"> </a>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const formatTime = (time: string) =>
   new Intl.DateTimeFormat("ru", {
@@ -707,4 +780,4 @@ export const Tenge = () => (
     alt=""
   />
 );
-export default Shop;
+export default Cabinet;
