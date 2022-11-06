@@ -11,9 +11,10 @@ type OrderService struct {
 	Products products.Products
 }
 
-func NewOrderService(order order.Order) Service {
+func NewOrderService(order order.Order, products products.Products) Service {
 	return &OrderService{
-		Order: order,
+		Order:    order,
+		Products: products,
 	}
 }
 
