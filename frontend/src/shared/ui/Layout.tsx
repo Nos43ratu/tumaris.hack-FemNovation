@@ -96,6 +96,26 @@ const images = [
   "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
   "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
   "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
 ];
 
 const checkout = (data: {
@@ -219,7 +239,7 @@ const Cart = () => {
                                   <li key={product.id} className="flex py-6">
                                     <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                                       <img
-                                        src={images[product.id ?? 0]}
+                                        src={images[product.id]}
                                         className="h-full w-full object-cover object-center"
                                       />
                                     </div>
