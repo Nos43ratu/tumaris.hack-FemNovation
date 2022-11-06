@@ -50,93 +50,8 @@ const Cabinet = () => {
   );
 };
 
-const getOrder = (): Promise<ApiResponse<Order[]>> =>
-  new Promise((resolve) => {
-    setTimeout(
-      () =>
-        resolve({
-          error: null,
-          response: {
-            data: [
-              {
-                id: 2,
-                status: 0,
-                client_id: 1,
-                shop_id: 1,
-                product_id: 1,
-                created_at: {
-                  Time: "2022-11-05T21:08:07.554106Z",
-                  Valid: true,
-                },
-                payed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                packed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                delivered_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                cancel_reason: "",
-              },
-              {
-                id: 1,
-                status: 2,
-                client_id: 1,
-                shop_id: 1,
-                product_id: 1,
-                created_at: {
-                  Time: "2022-11-05T21:05:40.424138Z",
-                  Valid: true,
-                },
-                payed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                packed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                delivered_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                cancel_reason: "blablabla",
-              },
-              {
-                id: 3,
-                status: 0,
-                client_id: 1,
-                shop_id: 1,
-                product_id: 1,
-                created_at: {
-                  Time: "2022-11-05T22:48:59.141991Z",
-                  Valid: true,
-                },
-                payed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                packed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                delivered_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                cancel_reason: "",
-              },
-            ],
-            status: 0,
-          },
-        }),
-      1000
-    );
-  });
+const getOrder = (id: number): Promise<ApiResponse<Order[]>> =>
+  instance.get(`/api/users/${id}/orders`);
 
 const status = {
   color: {
@@ -172,11 +87,23 @@ const Status = ({ type }: { type: OrderStatus }) => (
 );
 const OrderList = () => {
   const [parent] = useAutoAnimate();
-  const { data, isLoading } = useQuery(["orders"], getOrder);
+  const [userData, setUserData] = useState<null | UserData>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("userData");
+    user && setUserData(JSON.parse(user));
+  }, []);
+  const { data, isLoading } = useQuery(
+    ["orders"],
+    () => getOrder(userData?.id),
+    {
+      enabled: !!userData,
+    }
+  );
 
   const [activeOrder, setActiveOrder] = useState<null | number>(null);
 
-  const orders = data?.response?.data;
+  const orders = data?.data?.response?.data;
 
   return (
     <>
@@ -221,10 +148,12 @@ const OrderList = () => {
                         aria-hidden="true"
                       />
                       <span className="flex flex-col truncate text-sm text-gray-500">
-                        <span className="truncate">Бутылочка</span>
+                        <span className="truncate">
+                          {order?.products?.name}
+                        </span>
                         <span className="flex items-center">
                           <span className="font-medium text-gray-900">
-                            1300 <Tenge />
+                            {order?.products?.price} <Tenge />
                           </span>
                         </span>
                         <time dateTime={order.created_at.Time}>
@@ -324,14 +253,14 @@ const OrderList = () => {
                                 aria-hidden="true"
                               />
                               <p className="truncate text-gray-500 group-hover:text-gray-900">
-                                Бутылочка
+                                {order?.products?.name}
                               </p>
                             </button>
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-gray-500">
                           <p className="flex items-center font-medium text-gray-900">
-                            1300 <Tenge />
+                            {order?.products?.price} <Tenge />
                           </p>
                         </td>
                         <td className="hidden whitespace-nowrap px-6 py-4 text-sm text-gray-500 md:block">
@@ -361,7 +290,7 @@ const OrderList = () => {
 };
 
 const getOrderItem = (id: number): Promise<ApiResponse<Order>> =>
-  instance.get("");
+  instance.get(`/api/users/${id}/orders`);
 
 const getProduct = (id: number): Promise<ApiResponse<Product>> =>
   new Promise((resolve) => {
@@ -396,26 +325,22 @@ const OrderItem = ({
 }) => {
   const { data: orderData, isLoading: orderIsloading } = useQuery<
     ApiResponse<Order>
-  >(["order", id], () => getOrderItem(id));
+  >(["order", id], () => getOrderItem(id), {
+    enabled: !!id,
+  });
 
   const { data: productData, isLoading: productIsLoading } = useQuery<
     ApiResponse<Product>
   >({
-    queryKey: ["product", orderData?.response.data.product_id],
-    queryFn: () => getProduct(orderData?.response.data.product_id || 0),
+    queryKey: ["product", orderData?.data?.response.data.product_id],
+    queryFn: () => getProduct(orderData?.data?.response.data.product_id || 0),
     enabled: !!orderData,
   });
-
-  //   created: { icon: UserIcon, bgColorClass: "bg-gray-400" },
-  //   payed: { icon: HandThumbUpIcon, bgColorClass: "bg-blue-500" },
-  //   packed: { icon: CheckIcon, bgColorClass: "bg-green-500" },
-  //   delivered: { icon: CheckIcon, bgColorClass: "bg-green-500" },
-  //   canceled: { icon: CheckIcon, bgColorClass: "bg-green-500" },
 
   const timeLine = useMemo(() => {
     if (!orderData) return [];
 
-    const data = orderData.response.data;
+    const data = orderData.data.response.data;
 
     return [
       {
