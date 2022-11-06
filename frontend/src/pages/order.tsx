@@ -182,9 +182,9 @@ const Products = () => {
                 cx="50"
                 cy="50"
                 fill="none"
-                stroke-width="10"
+                strokeWidth="10"
                 r="35"
-                stroke-dasharray="164.93361431346415 56.97787143782138"
+                strokeDasharray="164.93361431346415 56.97787143782138"
               />
             </svg>
           </div>

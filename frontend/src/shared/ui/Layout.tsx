@@ -327,8 +327,8 @@ const Cart = () => {
   );
 };
 
-const getUser = (email: string): Promise<ApiResponse<UserData>> =>
-  instance.get("/api/users?email=" + "Mdidara@quirduck.khs");
+export const getUser = (email: string): Promise<ApiResponse<UserData>> =>
+  instance.get("/api/users?email=" + email);
 
 const Avatar = () => {
   const navigate = useNavigate();
@@ -341,8 +341,6 @@ const Avatar = () => {
   const { data } = useQuery(["user"], () => getUser(userData?.email ?? ""), {
     enabled: userData !== null,
   });
-
-  console.log(data);
 
   const mutation = useMutation({
     mutationFn: () => instance.get("/api/sign-out"),

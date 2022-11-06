@@ -6,7 +6,9 @@ import {
   CheckIcon,
   ChevronRightIcon,
   HandThumbUpIcon,
-  QuestionMarkCircleIcon,
+  HandRaisedIcon,
+  CurrencyDollarIcon,
+  GlobeAmericasIcon,
   StarIcon,
   UserIcon,
 } from "@heroicons/react/20/solid";
@@ -18,12 +20,16 @@ import { Dialog, Transition } from "@headlessui/react";
 import order from "@/pages/order";
 import axios from "axios";
 import { queryClient } from "@/app/app";
+import { getUser } from "@/shared/ui/Layout";
 
 const eventTypes = {
-  created: { icon: UserIcon, bgColorClass: "bg-yellow-400" },
-  payed: { icon: CheckIcon, bgColorClass: "bg-blue-500" },
-  packed: { icon: HandThumbUpIcon, bgColorClass: "bg-green-500" },
-  delivered: { icon: CheckIcon, bgColorClass: "bg-green-500" },
+  pending: { icon: UserIcon, bgColorClass: "bg-yellow-400" },
+  waiting: { icon: CurrencyDollarIcon, bgColorClass: "bg-blue-500" },
+  inProgress: { icon: HandThumbUpIcon, bgColorClass: "bg-green-500" },
+  inDelivery: { icon: HandRaisedIcon, bgColorClass: "bg-green-500" },
+  delivering: { icon: GlobeAmericasIcon, bgColorClass: "bg-green-500" },
+  delivered: { icon: HandThumbUpIcon, bgColorClass: "bg-red-500" },
+  error: { icon: XMarkIcon, bgColorClass: "bg-red-500" },
   canceled: { icon: XMarkIcon, bgColorClass: "bg-red-500" },
 };
 
@@ -31,7 +37,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const Shop = () => {
+const Cabinet = () => {
   return (
     <main className="flex-1 pb-8">
       {/* Page header */}
@@ -50,93 +56,8 @@ const Shop = () => {
   );
 };
 
-const getOrder = (): Promise<ApiResponse<Order[]>> =>
-  new Promise((resolve) => {
-    setTimeout(
-      () =>
-        resolve({
-          error: null,
-          response: {
-            data: [
-              {
-                id: 2,
-                status: 0,
-                client_id: 1,
-                shop_id: 1,
-                product_id: 1,
-                created_at: {
-                  Time: "2022-11-05T21:08:07.554106Z",
-                  Valid: true,
-                },
-                payed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                packed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                delivered_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                cancel_reason: "",
-              },
-              {
-                id: 1,
-                status: 2,
-                client_id: 1,
-                shop_id: 1,
-                product_id: 1,
-                created_at: {
-                  Time: "2022-11-05T21:05:40.424138Z",
-                  Valid: true,
-                },
-                payed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                packed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                delivered_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                cancel_reason: "blablabla",
-              },
-              {
-                id: 3,
-                status: 0,
-                client_id: 1,
-                shop_id: 1,
-                product_id: 1,
-                created_at: {
-                  Time: "2022-11-05T22:48:59.141991Z",
-                  Valid: true,
-                },
-                payed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                packed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                delivered_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                cancel_reason: "",
-              },
-            ],
-            status: 0,
-          },
-        }),
-      1000
-    );
-  });
+const getOrder = (id: number): Promise<ApiResponse<Order[]>> =>
+  instance.get(`/api/users/${id}/orders`);
 
 const status = {
   color: {
@@ -146,9 +67,7 @@ const status = {
     "3": "bg-gray-100 text-gray-800",
     "4": "bg-gray-100 text-gray-800",
     "5": "bg-gray-100 text-gray-800",
-    "-10": "bg-gray-100 text-gray-800",
     "-1": "bg-gray-100 text-gray-800",
-    "-2": "bg-gray-100 text-gray-800",
   },
   text: {
     0: "Ожидает ответа",
@@ -157,9 +76,7 @@ const status = {
     3: "Передан курьеру",
     4: "Ожидает доставки",
     5: "Доставлен",
-    "-10": "Ошибка системы",
     "-1": "Отменен",
-    "-2": "Отменен",
   },
 };
 
@@ -172,11 +89,23 @@ const Status = ({ type }: { type: OrderStatus }) => (
 );
 const OrderList = () => {
   const [parent] = useAutoAnimate();
-  const { data, isLoading } = useQuery(["orders"], getOrder);
+  const [userData, setUserData] = useState<null | UserData>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("userData");
+    user && setUserData(JSON.parse(user));
+  }, []);
+  const { data, isLoading } = useQuery(
+    ["orders"],
+    () => getOrder(userData?.id),
+    {
+      enabled: !!userData,
+    }
+  );
 
   const [activeOrder, setActiveOrder] = useState<null | number>(null);
 
-  const orders = data?.response?.data;
+  const orders = data?.data?.response?.data;
 
   return (
     <>
@@ -201,9 +130,9 @@ const OrderList = () => {
                   cx="50"
                   cy="50"
                   fill="none"
-                  stroke-width="10"
+                  strokeWidth="10"
                   r="35"
-                  stroke-dasharray="164.93361431346415 56.97787143782138"
+                  strokeDasharray="164.93361431346415 56.97787143782138"
                 />
               </svg>
             </div>
@@ -212,19 +141,21 @@ const OrderList = () => {
               <li key={order.id}>
                 <button
                   onClick={() => setActiveOrder(order.id)}
-                  className="block bg-white px-4 py-4 hover:bg-gray-50"
+                  className="block w-full bg-white px-4 py-4 hover:bg-gray-50"
                 >
-                  <span className="flex items-center space-x-4">
+                  <span className="flex w-full items-center space-x-4">
                     <span className="flex flex-1 space-x-2 truncate">
                       <BanknotesIcon
                         className="h-5 w-5 flex-shrink-0 text-gray-400"
                         aria-hidden="true"
                       />
-                      <span className="flex flex-col truncate text-sm text-gray-500">
-                        <span className="truncate">Бутылочка</span>
+                      <span className="flex w-full justify-between truncate text-sm text-gray-500">
+                        <span className="truncate">
+                          {order?.products?.name}
+                        </span>
                         <span className="flex items-center">
                           <span className="font-medium text-gray-900">
-                            1300 <Tenge />
+                            {order?.products?.price} <Tenge />
                           </span>
                         </span>
                         <time dateTime={order.created_at.Time}>
@@ -284,11 +215,7 @@ const OrderList = () => {
                 >
                   {isLoading ? (
                     <tr>
-                      <td
-                        colSpan="100%"
-                        align="center"
-                        className="py-10 text-blue-600"
-                      >
+                      <td align="center" className="py-10 text-blue-600">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="10 10 80 80"
@@ -302,9 +229,9 @@ const OrderList = () => {
                             cx="50"
                             cy="50"
                             fill="none"
-                            stroke-width="10"
+                            strokeWidth="10"
                             r="35"
-                            stroke-dasharray="164.93361431346415 56.97787143782138"
+                            strokeDasharray="164.93361431346415 56.97787143782138"
                           />
                         </svg>
                       </td>
@@ -324,14 +251,14 @@ const OrderList = () => {
                                 aria-hidden="true"
                               />
                               <p className="truncate text-gray-500 group-hover:text-gray-900">
-                                Бутылочка
+                                {order?.products?.name}
                               </p>
                             </button>
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-gray-500">
                           <p className="flex items-center font-medium text-gray-900">
-                            1300 <Tenge />
+                            {order?.products?.price} <Tenge />
                           </p>
                         </td>
                         <td className="hidden whitespace-nowrap px-6 py-4 text-sm text-gray-500 md:block">
@@ -361,29 +288,7 @@ const OrderList = () => {
 };
 
 const getOrderItem = (id: number): Promise<ApiResponse<Order>> =>
-  instance.get("/api/");
-
-const getProduct = (id: number): Promise<ApiResponse<Product>> =>
-  new Promise((resolve) => {
-    setTimeout(() =>
-      resolve({
-        error: null,
-        response: {
-          status: 0,
-          data: {
-            shop_id: 1,
-            name: "soap",
-            description: "the best soap eva",
-            sizes: ["small", "medium"],
-            colors: [2, 1, 3],
-            weight: 1.25,
-            price: 100.5,
-            category_id: 1,
-          },
-        },
-      })
-    );
-  });
+  instance.get(`/api/orders/${id}`);
 
 const OrderItem = ({
   open,
@@ -396,75 +301,65 @@ const OrderItem = ({
 }) => {
   const { data: orderData, isLoading: orderIsloading } = useQuery<
     ApiResponse<Order>
-  >(["order", id], () => getOrderItem(id));
-
-  const { data: productData, isLoading: productIsLoading } = useQuery<
-    ApiResponse<Product>
-  >({
-    queryKey: ["product", orderData?.response.data.product_id],
-    queryFn: () => getProduct(orderData?.response.data.product_id || 0),
-    enabled: !!orderData,
+  >(["order", id], () => getOrderItem(id), {
+    enabled: !!id,
   });
-
-  //   created: { icon: UserIcon, bgColorClass: "bg-gray-400" },
-  //   payed: { icon: HandThumbUpIcon, bgColorClass: "bg-blue-500" },
-  //   packed: { icon: CheckIcon, bgColorClass: "bg-green-500" },
-  //   delivered: { icon: CheckIcon, bgColorClass: "bg-green-500" },
-  //   canceled: { icon: CheckIcon, bgColorClass: "bg-green-500" },
 
   const timeLine = useMemo(() => {
     if (!orderData) return [];
 
-    const data = orderData.response.data;
+    const status = parseInt(orderData.data.response.data.status);
+    const data = orderData.data.response.data;
 
     return [
       {
         id: 1,
-        type: eventTypes.created,
+        type: eventTypes.pending,
         content: "Заказ ",
         target: "Создан",
-        active: !!data?.created_at?.Valid,
-        date: data?.created_at?.Valid
-          ? formatTime(data?.created_at?.Time)
-          : null,
-        datetime: data?.created_at?.Valid
-          ? formatTime(data?.created_at?.Time)
-          : null,
+        active: !data?.cancel_reason && status >= 0,
       },
       {
         id: 2,
-        type: eventTypes.payed,
+        type: eventTypes.waiting,
         content: "Заказ",
-        target: "Оплачен",
-        active: !!data?.payed_at?.Valid,
-        date: data?.payed_at?.Valid ? formatTime(data?.payed_at?.Time) : null,
-        datetime: data?.payed_at?.Valid
-          ? formatTime(data?.payed_at?.Time)
-          : null,
+        target: "Ожидает оплаты",
+        active: !data?.cancel_reason && status >= 1,
       },
       {
         id: 3,
-        type: eventTypes.packed,
+        type: eventTypes.inProgress,
         content: "Взят в обработку",
         target: "Исполнителем",
-        active: !!data?.packed_at?.Valid,
-        date: data?.packed_at?.Valid ? formatTime(data?.packed_at?.Time) : null,
-        datetime: data?.packed_at?.Valid
-          ? formatTime(data?.packed_at?.Time)
-          : null,
+        active: !data?.cancel_reason && status >= 2,
       },
       {
         id: 4,
-        type: eventTypes.created,
-        content: "Доставлен",
-        target: "на указанный адрес",
-        active: !!data?.delivered_at?.Valid,
-        date: data?.delivered_at?.Valid
-          ? formatTime(data?.delivered_at?.Time)
-          : null,
-        datetime: data?.delivered_at?.Valid
-          ? formatTime(data?.delivered_at?.Time)
-          : null,
+        type: eventTypes.inDelivery,
+        content: "Заказ",
+        target: "Передан курьеру",
+        active: !data?.cancel_reason && status >= 3,
+      },
+      {
+        id: 5,
+        type: eventTypes.delivering,
+        content: "Заказ",
+        target: "Ожидает доставки",
+        active: !data?.cancel_reason && status >= 4,
+      },
+      {
+        id: 6,
+        type: eventTypes.delivered,
+        content: "Заказ",
+        target: "Доставлен",
+        active: !data?.cancel_reason && status >= 5,
+      },
+      {
+        id: 7,
+        type: eventTypes.canceled,
+        content: "Заказ",
+        target: "Отменен",
+        active: !!data?.cancel_reason,
       },
     ];
   }, [orderData]);
@@ -478,15 +373,19 @@ const OrderItem = ({
   }, []);
 
   const mutation = useMutation({
-    mutationFn: () =>
-      axios.post("/api/orders/" + id, { status: "-1", cancel_reason: "a" }),
+    mutationFn: (status) =>
+      instance.post("/api/orders/" + id, {
+        status: parseInt(status, 10),
+        cancel_reason: -1 === parseInt(status, 10) ? "asd" : "",
+      }),
     onSuccess: () => {
-      queryClient.refetchQueries("orders");
+      queryClient.refetchQueries(["orders"]);
+      setOpen();
     },
   });
 
-  const calcelOrder = () => {
-    return mutation.mutate();
+  const calcelOrder = (status) => {
+    return mutation.mutate(status);
   };
 
   return (
@@ -526,7 +425,7 @@ const OrderItem = ({
                     <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
 
-                  {orderIsloading || productIsLoading ? (
+                  {orderIsloading ? (
                     <div>loading</div>
                   ) : (
                     <main className="py-10">
@@ -550,7 +449,10 @@ const OrderItem = ({
                                       Название товара
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.name}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.name
+                                      }
                                     </dd>
                                   </div>
                                   <div className="sm:col-span-1">
@@ -566,7 +468,10 @@ const OrderItem = ({
                                       Цена
                                     </dt>
                                     <dd className="mt-1 flex items-center text-sm text-gray-900">
-                                      {productData?.response?.data?.price}{" "}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.price
+                                      }{" "}
                                       <Tenge />
                                     </dd>
                                   </div>
@@ -575,7 +480,10 @@ const OrderItem = ({
                                       Вес
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.weight}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.weight
+                                      }
                                     </dd>
                                   </div>
                                   <div className="sm:col-span-2">
@@ -583,7 +491,10 @@ const OrderItem = ({
                                       Описание
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.description}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.description
+                                      }
                                     </dd>
                                   </div>
                                 </dl>
@@ -648,11 +559,7 @@ const OrderItem = ({
                                               </a>
                                             </p>
                                           </div>
-                                          <div className="whitespace-nowrap text-right text-sm text-gray-500">
-                                            <time dateTime={item.datetime}>
-                                              {item.date}
-                                            </time>
-                                          </div>
+                                          <div className="whitespace-nowrap text-right text-sm text-gray-500"></div>
                                         </div>
                                       </div>
                                     </div>
@@ -661,13 +568,19 @@ const OrderItem = ({
                               </ul>
                             </div>
                             <div className="justify-stretch mt-6 flex flex-col">
-                              <button
-                                type="button"
-                                onClick={calcelOrder}
-                                className="inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                              <select
+                                id="location"
+                                name="location"
+                                className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                                onChange={(e) => calcelOrder(e.target.value)}
+                                defaultValue={`${orderData?.data?.response?.data?.status}`}
                               >
-                                Отменить заказ
-                              </button>
+                                {Object.entries(status.text).map(
+                                  ([key, value]) => (
+                                    <option value={key}>{value}</option>
+                                  )
+                                )}
+                              </select>
                             </div>
                           </div>
                         </section>
@@ -686,6 +599,8 @@ const OrderItem = ({
 
 const Head = () => {
   const [userData, setUserData] = useState<null | UserData>(null);
+
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const user = localStorage.getItem("userData");
@@ -735,6 +650,57 @@ const Head = () => {
             >
               Пополнить счет
             </button>
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+            >
+              Добавить товар
+            </button>
+            <Transition.Root show={open} as={Fragment}>
+              <Dialog as="div" className="relative z-10" onClose={setOpen}>
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <div className="fixed inset-0 hidden bg-gray-500 bg-opacity-75 transition-opacity md:block" />
+                </Transition.Child>
+
+                <div className="fixed inset-0 z-10 overflow-y-auto">
+                  <div className="flex min-h-full items-stretch justify-center text-center md:items-center md:px-2 lg:px-4">
+                    <Transition.Child
+                      as={Fragment}
+                      enter="ease-out duration-300"
+                      enterFrom="opacity-0 translate-y-4 md:translate-y-0 md:scale-95"
+                      enterTo="opacity-100 translate-y-0 md:scale-100"
+                      leave="ease-in duration-200"
+                      leaveFrom="opacity-100 translate-y-0 md:scale-100"
+                      leaveTo="opacity-0 translate-y-4 md:translate-y-0 md:scale-95"
+                    >
+                      <Dialog.Panel className="flex w-full transform text-left text-base transition md:my-8 md:max-w-2xl md:px-4 lg:max-w-2xl">
+                        <div className="relative flex w-full items-center overflow-hidden bg-white px-4 pt-14 pb-8 shadow-2xl sm:px-6 sm:pt-8 md:p-6 lg:p-8">
+                          <button
+                            type="button"
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-500 sm:top-8 sm:right-6 md:top-6 md:right-6 lg:top-8 lg:right-8"
+                            onClick={() => setOpen(false)}
+                          >
+                            <span className="sr-only">Close</span>
+                            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                          </button>
+
+                          <AddProduct setOpen={() => setOpen(false)} />
+                        </div>
+                      </Dialog.Panel>
+                    </Transition.Child>
+                  </div>
+                </div>
+              </Dialog>
+            </Transition.Root>
           </div>
         </div>
       </div>
@@ -742,43 +708,198 @@ const Head = () => {
   );
 };
 
-const Info = () => (
-  <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-    <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      <div className="overflow-hidden rounded-lg bg-white shadow">
-        <div className="p-5">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <ScaleIcon className="h-6 w-6 text-gray-400" aria-hidden="true" />
+const AddProduct = ({ setOpen }: { setOpen: () => void }) => {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [weight, setWeight] = useState(0);
+  const [price, setPrice] = useState(0);
+
+  const handleAdd = () => {
+    const data = {
+      sizes: ["small", "medium"],
+      colors: [2, 1, 3],
+      category_id: 1,
+      shop_id: 1,
+      name,
+      description,
+      weight: parseInt(weight),
+      price: parseInt(price),
+    };
+    instance.post("/api/categories/1/products", data);
+    setOpen();
+  };
+
+  return (
+    <div>
+      <div className="sm:col-span-3">
+        <label className="block text-sm font-medium text-gray-700">
+          Название
+        </label>
+        <div className="mt-1">
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+        </div>
+      </div>
+      <div className="sm:col-span-3">
+        <label className="block text-sm font-medium text-gray-700">
+          Описание
+        </label>
+        <div className="mt-1">
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+        </div>
+      </div>
+      <div className="sm:col-span-3">
+        <label className="block text-sm font-medium text-gray-700">Вес</label>
+        <div className="mt-1">
+          <input
+            type="number"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+        </div>
+      </div>
+      <div className="sm:col-span-3">
+        <label className="block text-sm font-medium text-gray-700">Цена</label>
+        <div className="mt-1">
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={handleAdd}
+        className=" mt-2 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+      >
+        Добавить товар
+      </button>
+    </div>
+  );
+};
+
+const Info = () => {
+  const [userData, setUserData] = useState<null | UserData>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("userData");
+    user && setUserData(JSON.parse(user));
+  }, []);
+  const { data } = useQuery(["user"], () => getUser(userData?.email ?? ""), {
+    enabled: userData !== null,
+  });
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="overflow-hidden rounded-lg bg-white shadow">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ScaleIcon
+                  className="h-6 w-6 text-gray-400"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="truncate text-sm font-medium text-gray-500">
+                    Баланс
+                  </dt>
+                  <dd>
+                    <div className="flex items-center text-lg font-medium text-gray-900">
+                      13 364{" "}
+                      <img
+                        className="object-fit h-2.5 w-2"
+                        src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Tenge_symbol.svg"
+                        alt=""
+                      />
+                    </div>
+                  </dd>
+                </dl>
+              </div>
             </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="truncate text-sm font-medium text-gray-500">
-                  Баланс
-                </dt>
-                <dd>
-                  <div className="flex items-center text-lg font-medium text-gray-900">
-                    123 344{" "}
-                    <img
-                      className="object-fit h-2.5 w-2"
-                      src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Tenge_symbol.svg"
-                      alt=""
-                    />
-                  </div>
-                </dd>
-              </dl>
+          </div>
+          <div className="bg-gray-50 px-5 py-3">
+            <div className="text-sm">
+              <a className="font-medium text-cyan-700 hover:text-cyan-900"> </a>
             </div>
           </div>
         </div>
-        <div className="bg-gray-50 px-5 py-3">
-          <div className="text-sm">
-            <a className="font-medium text-cyan-700 hover:text-cyan-900"> </a>
+        <div className="overflow-hidden rounded-lg bg-white shadow">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ScaleIcon
+                  className="h-6 w-6 text-gray-400"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="truncate text-sm font-medium text-gray-500">
+                    Рейтинг
+                  </dt>
+                  <dd>
+                    <div className="flex items-center text-lg font-medium text-gray-900">
+                      {data?.data?.response?.data?.rating}
+                    </div>
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-50 px-5 py-3">
+            <div className="text-sm">
+              <a className="font-medium text-cyan-700 hover:text-cyan-900"> </a>
+            </div>
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-lg bg-white shadow">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ScaleIcon
+                  className="h-6 w-6 text-gray-400"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="truncate text-sm font-medium text-gray-500">
+                    Данные
+                  </dt>
+                  <dd>
+                    <div className="flex items-center text-lg font-medium text-gray-900">
+                      {data?.data?.response?.data?.about_me}
+                    </div>
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-50 px-5 py-3">
+            <div className="text-sm">
+              <a className="font-medium text-cyan-700 hover:text-cyan-900"> </a>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const formatTime = (time: string) =>
   new Intl.DateTimeFormat("ru", {
@@ -794,4 +915,4 @@ export const Tenge = () => (
     alt=""
   />
 );
-export default Shop;
+export default Cabinet;

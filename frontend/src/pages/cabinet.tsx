@@ -5,6 +5,9 @@ import {
   CheckCircleIcon,
   CheckIcon,
   ChevronRightIcon,
+  CurrencyDollarIcon,
+  GlobeAmericasIcon,
+  HandRaisedIcon,
   HandThumbUpIcon,
   QuestionMarkCircleIcon,
   StarIcon,
@@ -20,10 +23,13 @@ import axios from "axios";
 import { queryClient } from "@/app/app";
 
 const eventTypes = {
-  created: { icon: UserIcon, bgColorClass: "bg-yellow-400" },
-  payed: { icon: CheckIcon, bgColorClass: "bg-blue-500" },
-  packed: { icon: HandThumbUpIcon, bgColorClass: "bg-green-500" },
-  delivered: { icon: CheckIcon, bgColorClass: "bg-green-500" },
+  pending: { icon: UserIcon, bgColorClass: "bg-yellow-400" },
+  waiting: { icon: CurrencyDollarIcon, bgColorClass: "bg-blue-500" },
+  inProgress: { icon: HandThumbUpIcon, bgColorClass: "bg-green-500" },
+  inDelivery: { icon: HandRaisedIcon, bgColorClass: "bg-green-500" },
+  delivering: { icon: GlobeAmericasIcon, bgColorClass: "bg-green-500" },
+  delivered: { icon: HandThumbUpIcon, bgColorClass: "bg-red-500" },
+  error: { icon: XMarkIcon, bgColorClass: "bg-red-500" },
   canceled: { icon: XMarkIcon, bgColorClass: "bg-red-500" },
 };
 
@@ -61,9 +67,7 @@ const status = {
     "3": "bg-gray-100 text-gray-800",
     "4": "bg-gray-100 text-gray-800",
     "5": "bg-gray-100 text-gray-800",
-    "-10": "bg-gray-100 text-gray-800",
     "-1": "bg-gray-100 text-gray-800",
-    "-2": "bg-gray-100 text-gray-800",
   },
   text: {
     0: "Ожидает ответа",
@@ -72,9 +76,7 @@ const status = {
     3: "Передан курьеру",
     4: "Ожидает доставки",
     5: "Доставлен",
-    "-10": "Ошибка системы",
     "-1": "Отменен",
-    "-2": "Отменен",
   },
 };
 
@@ -128,9 +130,9 @@ const OrderList = () => {
                   cx="50"
                   cy="50"
                   fill="none"
-                  stroke-width="10"
+                  strokeWidth="10"
                   r="35"
-                  stroke-dasharray="164.93361431346415 56.97787143782138"
+                  strokeDasharray="164.93361431346415 56.97787143782138"
                 />
               </svg>
             </div>
@@ -139,15 +141,15 @@ const OrderList = () => {
               <li key={order.id}>
                 <button
                   onClick={() => setActiveOrder(order.id)}
-                  className="block bg-white px-4 py-4 hover:bg-gray-50"
+                  className="block w-full bg-white px-4 py-4 hover:bg-gray-50"
                 >
-                  <span className="flex items-center space-x-4">
+                  <span className="flex w-full items-center space-x-4">
                     <span className="flex flex-1 space-x-2 truncate">
                       <BanknotesIcon
                         className="h-5 w-5 flex-shrink-0 text-gray-400"
                         aria-hidden="true"
                       />
-                      <span className="flex flex-col truncate text-sm text-gray-500">
+                      <span className="flex w-full justify-between truncate text-sm text-gray-500">
                         <span className="truncate">
                           {order?.products?.name}
                         </span>
@@ -213,11 +215,7 @@ const OrderList = () => {
                 >
                   {isLoading ? (
                     <tr>
-                      <td
-                        colSpan="100%"
-                        align="center"
-                        className="py-10 text-blue-600"
-                      >
+                      <td align="center" className="py-10 text-blue-600">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="10 10 80 80"
@@ -231,9 +229,9 @@ const OrderList = () => {
                             cx="50"
                             cy="50"
                             fill="none"
-                            stroke-width="10"
+                            strokeWidth="10"
                             r="35"
-                            stroke-dasharray="164.93361431346415 56.97787143782138"
+                            strokeDasharray="164.93361431346415 56.97787143782138"
                           />
                         </svg>
                       </td>
@@ -290,29 +288,7 @@ const OrderList = () => {
 };
 
 const getOrderItem = (id: number): Promise<ApiResponse<Order>> =>
-  instance.get(`/api/users/${id}/orders`);
-
-const getProduct = (id: number): Promise<ApiResponse<Product>> =>
-  new Promise((resolve) => {
-    setTimeout(() =>
-      resolve({
-        error: null,
-        response: {
-          status: 0,
-          data: {
-            shop_id: 1,
-            name: "soap",
-            description: "the best soap eva",
-            sizes: ["small", "medium"],
-            colors: [2, 1, 3],
-            weight: 1.25,
-            price: 100.5,
-            category_id: 1,
-          },
-        },
-      })
-    );
-  });
+  instance.get(`/api/orders/${id}`);
 
 const OrderItem = ({
   open,
@@ -329,67 +305,61 @@ const OrderItem = ({
     enabled: !!id,
   });
 
-  const { data: productData, isLoading: productIsLoading } = useQuery<
-    ApiResponse<Product>
-  >({
-    queryKey: ["product", orderData?.data?.response.data.product_id],
-    queryFn: () => getProduct(orderData?.data?.response.data.product_id || 0),
-    enabled: !!orderData,
-  });
-
   const timeLine = useMemo(() => {
     if (!orderData) return [];
 
+    const status = parseInt(orderData.data.response.data.status);
     const data = orderData.data.response.data;
 
     return [
       {
         id: 1,
-        type: eventTypes.created,
+        type: eventTypes.pending,
         content: "Заказ ",
         target: "Создан",
-        active: !!data?.created_at?.Valid,
-        date: data?.created_at?.Valid
-          ? formatTime(data?.created_at?.Time)
-          : null,
-        datetime: data?.created_at?.Valid
-          ? formatTime(data?.created_at?.Time)
-          : null,
+        active: !data?.cancel_reason && status >= 0,
       },
       {
         id: 2,
-        type: eventTypes.payed,
+        type: eventTypes.waiting,
         content: "Заказ",
-        target: "Оплачен",
-        active: !!data?.payed_at?.Valid,
-        date: data?.payed_at?.Valid ? formatTime(data?.payed_at?.Time) : null,
-        datetime: data?.payed_at?.Valid
-          ? formatTime(data?.payed_at?.Time)
-          : null,
+        target: "Ожидает оплаты",
+        active: !data?.cancel_reason && status >= 1,
       },
       {
         id: 3,
-        type: eventTypes.packed,
+        type: eventTypes.inProgress,
         content: "Взят в обработку",
         target: "Исполнителем",
-        active: !!data?.packed_at?.Valid,
-        date: data?.packed_at?.Valid ? formatTime(data?.packed_at?.Time) : null,
-        datetime: data?.packed_at?.Valid
-          ? formatTime(data?.packed_at?.Time)
-          : null,
+        active: !data?.cancel_reason && status >= 2,
       },
       {
         id: 4,
-        type: eventTypes.created,
-        content: "Доставлен",
-        target: "на указанный адрес",
-        active: !!data?.delivered_at?.Valid,
-        date: data?.delivered_at?.Valid
-          ? formatTime(data?.delivered_at?.Time)
-          : null,
-        datetime: data?.delivered_at?.Valid
-          ? formatTime(data?.delivered_at?.Time)
-          : null,
+        type: eventTypes.inDelivery,
+        content: "Заказ",
+        target: "Передан курьеру",
+        active: !data?.cancel_reason && status >= 3,
+      },
+      {
+        id: 5,
+        type: eventTypes.delivering,
+        content: "Заказ",
+        target: "Ожидает доставки",
+        active: !data?.cancel_reason && status >= 4,
+      },
+      {
+        id: 6,
+        type: eventTypes.delivered,
+        content: "Заказ",
+        target: "Доставлен",
+        active: !data?.cancel_reason && status >= 5,
+      },
+      {
+        id: 7,
+        type: eventTypes.canceled,
+        content: "Заказ",
+        target: "Отменен",
+        active: !!data?.cancel_reason,
       },
     ];
   }, [orderData]);
@@ -404,9 +374,10 @@ const OrderItem = ({
 
   const mutation = useMutation({
     mutationFn: () =>
-      axios.post("/api/orders/" + id, { status: "-1", cancel_reason: "a" }),
+      instance.post("/api/orders/" + id, { status: -1, cancel_reason: "a" }),
     onSuccess: () => {
-      queryClient.refetchQueries("orders");
+      queryClient.refetchQueries(["orders"]);
+      setOpen();
     },
   });
 
@@ -451,7 +422,7 @@ const OrderItem = ({
                     <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
 
-                  {orderIsloading || productIsLoading ? (
+                  {orderIsloading ? (
                     <div>loading</div>
                   ) : (
                     <main className="py-10">
@@ -475,7 +446,10 @@ const OrderItem = ({
                                       Название товара
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.name}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.name
+                                      }
                                     </dd>
                                   </div>
                                   <div className="sm:col-span-1">
@@ -491,7 +465,10 @@ const OrderItem = ({
                                       Цена
                                     </dt>
                                     <dd className="mt-1 flex items-center text-sm text-gray-900">
-                                      {productData?.response?.data?.price}{" "}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.price
+                                      }{" "}
                                       <Tenge />
                                     </dd>
                                   </div>
@@ -500,7 +477,10 @@ const OrderItem = ({
                                       Вес
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.weight}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.weight
+                                      }
                                     </dd>
                                   </div>
                                   <div className="sm:col-span-2">
@@ -508,7 +488,10 @@ const OrderItem = ({
                                       Описание
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.description}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.description
+                                      }
                                     </dd>
                                   </div>
                                 </dl>
@@ -573,11 +556,7 @@ const OrderItem = ({
                                               </a>
                                             </p>
                                           </div>
-                                          <div className="whitespace-nowrap text-right text-sm text-gray-500">
-                                            <time dateTime={item.datetime}>
-                                              {item.date}
-                                            </time>
-                                          </div>
+                                          <div className="whitespace-nowrap text-right text-sm text-gray-500"></div>
                                         </div>
                                       </div>
                                     </div>
@@ -585,6 +564,7 @@ const OrderItem = ({
                                 ))}
                               </ul>
                             </div>
+
                             <div className="justify-stretch mt-6 flex flex-col">
                               <button
                                 type="button"
@@ -667,43 +647,48 @@ const Head = () => {
   );
 };
 
-const Info = () => (
-  <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-    <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      <div className="overflow-hidden rounded-lg bg-white shadow">
-        <div className="p-5">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <ScaleIcon className="h-6 w-6 text-gray-400" aria-hidden="true" />
-            </div>
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="truncate text-sm font-medium text-gray-500">
-                  Баланс
-                </dt>
-                <dd>
-                  <div className="flex items-center text-lg font-medium text-gray-900">
-                    123 344{" "}
-                    <img
-                      className="object-fit h-2.5 w-2"
-                      src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Tenge_symbol.svg"
-                      alt=""
-                    />
-                  </div>
-                </dd>
-              </dl>
+const Info = () => {
+  return (
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="overflow-hidden rounded-lg bg-white shadow">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ScaleIcon
+                  className="h-6 w-6 text-gray-400"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="truncate text-sm font-medium text-gray-500">
+                    Баланс
+                  </dt>
+                  <dd>
+                    <div className="flex items-center text-lg font-medium text-gray-900">
+                      123 344{" "}
+                      <img
+                        className="object-fit h-2.5 w-2"
+                        src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Tenge_symbol.svg"
+                        alt=""
+                      />
+                    </div>
+                  </dd>
+                </dl>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="bg-gray-50 px-5 py-3">
-          <div className="text-sm">
-            <a className="font-medium text-cyan-700 hover:text-cyan-900"> </a>
+          <div className="bg-gray-50 px-5 py-3">
+            <div className="text-sm">
+              <a className="font-medium text-cyan-700 hover:text-cyan-900"> </a>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const formatTime = (time: string) =>
   new Intl.DateTimeFormat("ru", {
