@@ -7,6 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"tumaris.hack-FemNovation/backend/internal/service"
+
+	"github.com/gin-contrib/cors"
 )
 
 type Handler struct {
@@ -60,6 +62,12 @@ func NewHandler(services *service.Service, sugar *zap.SugaredLogger) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.Default()
+
+	router.Use(cors.New(cors.Config{
+		AllowMethods: []string{"*"},
+		AllowHeaders: []string{"*"},
+		AllowOrigins: []string{"*"},
+	}))
 
 	api := router.Group("/api")
 
