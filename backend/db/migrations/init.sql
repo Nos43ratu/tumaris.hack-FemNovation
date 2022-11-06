@@ -83,7 +83,7 @@ CREATE TABLE product
         FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
-INSERT INTO product (shop_id, name, description, sizes, colors, weight, price, category_id) VALUES(1, 'soap', 'the best soap', '{"small", "medium", "large"}', '{0, 1, 2}', 1.32, 20.25, 1);
+INSERT INTO product (shop_id, name, description, sizes, colors, weight, price, rating ,category_id) VALUES(1, 'soap', 'the best soap', '{"small", "medium", "large"}', '{0, 1, 2}', 1.32, 20.25, 9.8, 1);
 
 CREATE TABLE public.comment
 (

@@ -71,6 +71,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	api := router.Group("/api")
 
+	api.Use(cors.New(cors.Config{
+		AllowMethods: []string{"*"},
+		AllowHeaders: []string{"*"},
+		AllowOrigins: []string{"*"},
+	}))
+
 	api.POST("/sign-in", h.SignIn)
 	api.OPTIONS("/sign-in", h.OK)
 
