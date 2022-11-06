@@ -67,6 +67,6 @@ type Order struct {
 	PayedAt      pq.NullTime `json:"payed_at,omitempty"`
 	PackedAt     pq.NullTime `json:"packed_at,omitempty"`
 	DeliveredAt  pq.NullTime `json:"delivered_at,omitempty"`
-	CancelReason string      `json:"cancel_reason"`
+	CancelReason *string     `json:"cancel_reason"`
 	Products     *Product    `json:"products,omitempty"`
 }
