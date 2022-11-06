@@ -50,93 +50,8 @@ const Shop = () => {
   );
 };
 
-const getOrder = (): Promise<ApiResponse<Order[]>> =>
-  new Promise((resolve) => {
-    setTimeout(
-      () =>
-        resolve({
-          error: null,
-          response: {
-            data: [
-              {
-                id: 2,
-                status: 0,
-                client_id: 1,
-                shop_id: 1,
-                product_id: 1,
-                created_at: {
-                  Time: "2022-11-05T21:08:07.554106Z",
-                  Valid: true,
-                },
-                payed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                packed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                delivered_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                cancel_reason: "",
-              },
-              {
-                id: 1,
-                status: 2,
-                client_id: 1,
-                shop_id: 1,
-                product_id: 1,
-                created_at: {
-                  Time: "2022-11-05T21:05:40.424138Z",
-                  Valid: true,
-                },
-                payed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                packed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                delivered_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                cancel_reason: "blablabla",
-              },
-              {
-                id: 3,
-                status: 0,
-                client_id: 1,
-                shop_id: 1,
-                product_id: 1,
-                created_at: {
-                  Time: "2022-11-05T22:48:59.141991Z",
-                  Valid: true,
-                },
-                payed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                packed_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                delivered_at: {
-                  Time: "0001-01-01T00:00:00Z",
-                  Valid: false,
-                },
-                cancel_reason: "",
-              },
-            ],
-            status: 0,
-          },
-        }),
-      1000
-    );
-  });
+const getOrder = (id: number): Promise<ApiResponse<Order[]>> =>
+  instance.get(`/api/users/${id}/orders`);
 
 const status = {
   color: {
@@ -172,11 +87,23 @@ const Status = ({ type }: { type: OrderStatus }) => (
 );
 const OrderList = () => {
   const [parent] = useAutoAnimate();
-  const { data, isLoading } = useQuery(["orders"], getOrder);
+  const [userData, setUserData] = useState<null | UserData>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("userData");
+    user && setUserData(JSON.parse(user));
+  }, []);
+  const { data, isLoading } = useQuery(
+    ["orders"],
+    () => getOrder(userData?.id),
+    {
+      enabled: !!userData,
+    }
+  );
 
   const [activeOrder, setActiveOrder] = useState<null | number>(null);
 
-  const orders = data?.response?.data;
+  const orders = data?.data?.response?.data;
 
   return (
     <>
@@ -201,9 +128,9 @@ const OrderList = () => {
                   cx="50"
                   cy="50"
                   fill="none"
-                  stroke-width="10"
+                  strokeWidth="10"
                   r="35"
-                  stroke-dasharray="164.93361431346415 56.97787143782138"
+                  strokeDasharray="164.93361431346415 56.97787143782138"
                 />
               </svg>
             </div>
@@ -212,19 +139,21 @@ const OrderList = () => {
               <li key={order.id}>
                 <button
                   onClick={() => setActiveOrder(order.id)}
-                  className="block bg-white px-4 py-4 hover:bg-gray-50"
+                  className="block w-full bg-white px-4 py-4 hover:bg-gray-50"
                 >
-                  <span className="flex items-center space-x-4">
+                  <span className="flex w-full items-center space-x-4">
                     <span className="flex flex-1 space-x-2 truncate">
                       <BanknotesIcon
                         className="h-5 w-5 flex-shrink-0 text-gray-400"
                         aria-hidden="true"
                       />
-                      <span className="flex flex-col truncate text-sm text-gray-500">
-                        <span className="truncate">Бутылочка</span>
+                      <span className="flex w-full justify-between truncate text-sm text-gray-500">
+                        <span className="truncate">
+                          {order?.products?.name}
+                        </span>
                         <span className="flex items-center">
                           <span className="font-medium text-gray-900">
-                            1300 <Tenge />
+                            {order?.products?.price} <Tenge />
                           </span>
                         </span>
                         <time dateTime={order.created_at.Time}>
@@ -284,11 +213,7 @@ const OrderList = () => {
                 >
                   {isLoading ? (
                     <tr>
-                      <td
-                        colSpan="100%"
-                        align="center"
-                        className="py-10 text-blue-600"
-                      >
+                      <td align="center" className="py-10 text-blue-600">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="10 10 80 80"
@@ -302,9 +227,9 @@ const OrderList = () => {
                             cx="50"
                             cy="50"
                             fill="none"
-                            stroke-width="10"
+                            strokeWidth="10"
                             r="35"
-                            stroke-dasharray="164.93361431346415 56.97787143782138"
+                            strokeDasharray="164.93361431346415 56.97787143782138"
                           />
                         </svg>
                       </td>
@@ -324,14 +249,14 @@ const OrderList = () => {
                                 aria-hidden="true"
                               />
                               <p className="truncate text-gray-500 group-hover:text-gray-900">
-                                Бутылочка
+                                {order?.products?.name}
                               </p>
                             </button>
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-gray-500">
                           <p className="flex items-center font-medium text-gray-900">
-                            1300 <Tenge />
+                            {order?.products?.price} <Tenge />
                           </p>
                         </td>
                         <td className="hidden whitespace-nowrap px-6 py-4 text-sm text-gray-500 md:block">
@@ -361,29 +286,7 @@ const OrderList = () => {
 };
 
 const getOrderItem = (id: number): Promise<ApiResponse<Order>> =>
-  instance.get("/api/");
-
-const getProduct = (id: number): Promise<ApiResponse<Product>> =>
-  new Promise((resolve) => {
-    setTimeout(() =>
-      resolve({
-        error: null,
-        response: {
-          status: 0,
-          data: {
-            shop_id: 1,
-            name: "soap",
-            description: "the best soap eva",
-            sizes: ["small", "medium"],
-            colors: [2, 1, 3],
-            weight: 1.25,
-            price: 100.5,
-            category_id: 1,
-          },
-        },
-      })
-    );
-  });
+  instance.get(`/api/orders/${id}`);
 
 const OrderItem = ({
   open,
@@ -396,26 +299,14 @@ const OrderItem = ({
 }) => {
   const { data: orderData, isLoading: orderIsloading } = useQuery<
     ApiResponse<Order>
-  >(["order", id], () => getOrderItem(id));
-
-  const { data: productData, isLoading: productIsLoading } = useQuery<
-    ApiResponse<Product>
-  >({
-    queryKey: ["product", orderData?.response.data.product_id],
-    queryFn: () => getProduct(orderData?.response.data.product_id || 0),
-    enabled: !!orderData,
+  >(["order", id], () => getOrderItem(id), {
+    enabled: !!id,
   });
-
-  //   created: { icon: UserIcon, bgColorClass: "bg-gray-400" },
-  //   payed: { icon: HandThumbUpIcon, bgColorClass: "bg-blue-500" },
-  //   packed: { icon: CheckIcon, bgColorClass: "bg-green-500" },
-  //   delivered: { icon: CheckIcon, bgColorClass: "bg-green-500" },
-  //   canceled: { icon: CheckIcon, bgColorClass: "bg-green-500" },
 
   const timeLine = useMemo(() => {
     if (!orderData) return [];
 
-    const data = orderData.response.data;
+    const data = orderData.data.response.data;
 
     return [
       {
@@ -423,7 +314,7 @@ const OrderItem = ({
         type: eventTypes.created,
         content: "Заказ ",
         target: "Создан",
-        active: !!data?.created_at?.Valid,
+        active: !data?.cancel_reason && !!data?.created_at?.Valid,
         date: data?.created_at?.Valid
           ? formatTime(data?.created_at?.Time)
           : null,
@@ -458,13 +349,22 @@ const OrderItem = ({
         type: eventTypes.created,
         content: "Доставлен",
         target: "на указанный адрес",
-        active: !!data?.delivered_at?.Valid,
+        active: !data?.cancel_reason || !!data?.delivered_at?.Valid,
         date: data?.delivered_at?.Valid
           ? formatTime(data?.delivered_at?.Time)
           : null,
         datetime: data?.delivered_at?.Valid
           ? formatTime(data?.delivered_at?.Time)
           : null,
+      },
+      {
+        id: 4,
+        type: eventTypes.canceled,
+        content: "Заказ",
+        target: "Отменен",
+        active: !!data?.cancel_reason,
+        date: "",
+        datetime: "",
       },
     ];
   }, [orderData]);
@@ -479,9 +379,10 @@ const OrderItem = ({
 
   const mutation = useMutation({
     mutationFn: () =>
-      axios.post("/api/orders/" + id, { status: "-1", cancel_reason: "a" }),
+      instance.post("/api/orders/" + id, { status: -1, cancel_reason: "a" }),
     onSuccess: () => {
-      queryClient.refetchQueries("orders");
+      queryClient.refetchQueries(["orders"]);
+      setOpen();
     },
   });
 
@@ -526,7 +427,7 @@ const OrderItem = ({
                     <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
 
-                  {orderIsloading || productIsLoading ? (
+                  {orderIsloading ? (
                     <div>loading</div>
                   ) : (
                     <main className="py-10">
@@ -550,7 +451,10 @@ const OrderItem = ({
                                       Название товара
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.name}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.name
+                                      }
                                     </dd>
                                   </div>
                                   <div className="sm:col-span-1">
@@ -566,7 +470,10 @@ const OrderItem = ({
                                       Цена
                                     </dt>
                                     <dd className="mt-1 flex items-center text-sm text-gray-900">
-                                      {productData?.response?.data?.price}{" "}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.price
+                                      }{" "}
                                       <Tenge />
                                     </dd>
                                   </div>
@@ -575,7 +482,10 @@ const OrderItem = ({
                                       Вес
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.weight}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.weight
+                                      }
                                     </dd>
                                   </div>
                                   <div className="sm:col-span-2">
@@ -583,7 +493,10 @@ const OrderItem = ({
                                       Описание
                                     </dt>
                                     <dd className="mt-1 text-sm text-gray-900">
-                                      {productData?.response?.data?.description}
+                                      {
+                                        orderData?.data?.response?.data
+                                          ?.products?.description
+                                      }
                                     </dd>
                                   </div>
                                 </dl>

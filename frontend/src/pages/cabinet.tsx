@@ -128,9 +128,9 @@ const OrderList = () => {
                   cx="50"
                   cy="50"
                   fill="none"
-                  stroke-width="10"
+                  strokeWidth="10"
                   r="35"
-                  stroke-dasharray="164.93361431346415 56.97787143782138"
+                  strokeDasharray="164.93361431346415 56.97787143782138"
                 />
               </svg>
             </div>
@@ -327,7 +327,7 @@ const OrderItem = ({
         type: eventTypes.payed,
         content: "Заказ",
         target: "Оплачен",
-        active: !!data?.payed_at?.Valid,
+        active: !data?.cancel_reason && !!data?.payed_at?.Valid,
         date: data?.payed_at?.Valid ? formatTime(data?.payed_at?.Time) : null,
         datetime: data?.payed_at?.Valid
           ? formatTime(data?.payed_at?.Time)
@@ -338,7 +338,7 @@ const OrderItem = ({
         type: eventTypes.packed,
         content: "Взят в обработку",
         target: "Исполнителем",
-        active: !!data?.packed_at?.Valid,
+        active: !data?.cancel_reason && !!data?.packed_at?.Valid,
         date: data?.packed_at?.Valid ? formatTime(data?.packed_at?.Time) : null,
         datetime: data?.packed_at?.Valid
           ? formatTime(data?.packed_at?.Time)
@@ -349,7 +349,7 @@ const OrderItem = ({
         type: eventTypes.created,
         content: "Доставлен",
         target: "на указанный адрес",
-        active: !data?.cancel_reason || !!data?.delivered_at?.Valid,
+        active: !data?.cancel_reason && !!data?.delivered_at?.Valid,
         date: data?.delivered_at?.Valid
           ? formatTime(data?.delivered_at?.Time)
           : null,
@@ -358,7 +358,7 @@ const OrderItem = ({
           : null,
       },
       {
-        id: 4,
+        id: 5,
         type: eventTypes.canceled,
         content: "Заказ",
         target: "Отменен",
