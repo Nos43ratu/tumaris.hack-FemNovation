@@ -327,23 +327,22 @@ const Cart = () => {
   );
 };
 
-const getUser = (): Promise<ApiResponse<UserData>> =>
-  instance.get("/api/users", {
-    data: {
-      email: "KLeya@gmail.com",
-    },
-  });
+const getUser = (email: string): Promise<ApiResponse<UserData>> =>
+  instance.get("/api/users?email=" + "Mdidara@quirduck.khs");
 
 const Avatar = () => {
   const navigate = useNavigate();
-  // const { data } = useQuery(["user"], getUser);
-
   const [userData, setUserData] = useState<null | UserData>(null);
 
   useEffect(() => {
     const user = localStorage.getItem("userData");
     user && setUserData(JSON.parse(user));
   }, []);
+  const { data } = useQuery(["user"], () => getUser(userData?.email ?? ""), {
+    enabled: userData !== null,
+  });
+
+  console.log(data);
 
   const mutation = useMutation({
     mutationFn: () => instance.get("/api/sign-out"),

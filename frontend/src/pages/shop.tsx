@@ -361,7 +361,7 @@ const OrderList = () => {
 };
 
 const getOrderItem = (id: number): Promise<ApiResponse<Order>> =>
-  instance.get("");
+  instance.get("/api/");
 
 const getProduct = (id: number): Promise<ApiResponse<Product>> =>
   new Promise((resolve) => {

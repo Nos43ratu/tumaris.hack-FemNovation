@@ -42,6 +42,7 @@ declare global {
     shop_id: number;
     status: OrderStatus | number;
     product_id: number;
+    products: Product;
     created_at: {
       Time: string;
       Valid: boolean;
