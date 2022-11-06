@@ -30,7 +30,7 @@ func (u *UserRepo) GetByEmail(email string) (*models.UserInfo, error) {
 
 	user := &models.UserInfo{}
 	query := `SELECT * FROM users WHERE email=$1`
-	log.Println(">>", query, email)
+	log.Printf(">>[%s]:[%s]", query, email)
 	err := u.db.QueryRow(ctx, query, email).Scan(&user.ID, &user.Email, &user.Phone, &user.FirstName, &user.LastName, &user.Password, &user.Role, &user.AboutMe, &user.Instagram, &user.Rating, &user.ShopID, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		u.logger.Errorf("db error: %s", err)

@@ -1,6 +1,8 @@
 package users
 
 import (
+	"log"
+
 	"tumaris.hack-FemNovation/backend/internal/models"
 	"tumaris.hack-FemNovation/backend/internal/repository/users"
 )
@@ -16,5 +18,6 @@ func NewUserService(users users.Users) Service {
 }
 
 func (u *UserService) GetByEmail(email string) (*models.UserInfo, error) {
+	log.Printf("[%s]", email)
 	return u.Users.GetByEmail(email)
 }

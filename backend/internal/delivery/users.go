@@ -1,6 +1,8 @@
 package delivery
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"tumaris.hack-FemNovation/backend/internal/models"
 )
@@ -8,6 +10,7 @@ import (
 func (h *Handler) GetUser(c *gin.Context) {
 	email := c.Param("email")
 
+	log.Printf("[%s]", email)
 	info, err := h.service.Users.GetByEmail(email)
 	if err != nil {
 		h.logger.Errorf("[ERROR]: error getting user", err)
