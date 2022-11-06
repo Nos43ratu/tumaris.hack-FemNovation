@@ -1,15 +1,9 @@
-import { router } from "@/pages/routes";
 import { RouterProvider } from "react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
-export const queryClient = new QueryClient();
+import { router } from "@/pages/routes";
 
-export const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <RouterProvider router={router} />
-    <ToastContainer />
-  </QueryClientProvider>
-);
-export default App;
+import { withHocs } from "./hocs";
+
+export const App = () => <RouterProvider router={router} />;
+
+export default withHocs(App);
