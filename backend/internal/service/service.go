@@ -22,7 +22,7 @@ func New(repos *repository.Repository, hasher *hash.BcryptHasher, accessTTL time
 	return &Service{
 		Auth:     auth.NewAuthService(repos.Auth, hasher, repos.Token, accessTTL, refreshTTL),
 		Products: products.NewProductsService(repos.Products),
-		Order:    order.NewOrderService(repos.Order),
+		Order:    order.NewOrderService(repos.Order, repos.Products),
 		Users:    users.NewUserService(repos.Users),
 	}
 }

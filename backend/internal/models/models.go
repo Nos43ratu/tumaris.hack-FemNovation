@@ -52,6 +52,7 @@ type Product struct {
 	Rating      float32  `json:"rating"`
 	CategoryID  int      `json:"category_id"`
 }
+
 type Order struct {
 	ID           int         `json:"id,omitempty"`
 	Status       int         `json:"status"`
@@ -63,4 +64,5 @@ type Order struct {
 	PackedAt     pq.NullTime `json:"packed_at,omitempty"`
 	DeliveredAt  pq.NullTime `json:"delivered_at,omitempty"`
 	CancelReason string      `json:"cancel_reason"`
+	Products     *Product    `json:"products,omitempty"`
 }
