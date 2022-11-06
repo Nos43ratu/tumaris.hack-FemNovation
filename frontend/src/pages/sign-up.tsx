@@ -3,6 +3,7 @@ import { LockClosedIcon } from "@heroicons/react/20/solid";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { instance } from "@/shared/api/axios.instance";
 
 const SignUp = () => {
   const [email, setEmail] = React.useState("");
@@ -11,7 +12,7 @@ const SignUp = () => {
 
   const mutation = useMutation({
     mutationFn: (data: { email: string; password: string }) =>
-      axios.post("/api/sign-in", data),
+      instance.post("/api/sign-in", data),
     onSuccess: (data) => {
       navigate("/cabinet/orders");
     },

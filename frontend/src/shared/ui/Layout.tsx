@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Dialog, Menu, Popover, Transition } from "@headlessui/react";
 import {
@@ -10,9 +10,10 @@ import create from "zustand";
 import { StarIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { instance } from "@/shared/api/axios.instance";
 
 const user = {
   name: "Whitney Francis",
@@ -90,13 +91,51 @@ export const useCartStore = create<{
   },
 }));
 
+const images = [
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg",
+  "https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg",
+];
+
+const checkout = (data: {
+  client_id: number;
+  shop_id: number;
+  product_id: number;
+}) => instance.post("/api/orders", data);
+
 const Cart = () => {
   const navigate = useNavigate();
   const cart = useCartStore();
   const [parent] = useAutoAnimate<HTMLUListElement | null>();
 
-  const handleCheckout = () => {
-    console.log("checkout");
+  const [userData, setUserData] = useState<null | UserData>(null);
+  useEffect(() => {
+    const user = localStorage.getItem("userData");
+    user && setUserData(JSON.parse(user));
+  }, []);
+
+  const mutate = useMutation({
+    mutationFn: (data: {
+      client_id: number;
+      shop_id: number;
+      product_id: number;
+    }) => {
+      console.log(data);
+      return checkout(data);
+    },
+  });
+
+  const handleCheckout = async () => {
+    await Promise.all(
+      cart.products.map((product) => {
+        return mutate.mutate({
+          client_id: userData.id,
+          shop_id: product.shop_id,
+          product_id: product.id,
+        });
+      })
+    );
     navigate("/cabinet");
   };
 
@@ -180,7 +219,7 @@ const Cart = () => {
                                   <li key={product.id} className="flex py-6">
                                     <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                                       <img
-                                        src={product.imageSrc}
+                                        src={images[product.id ?? 0]}
                                         className="h-full w-full object-cover object-center"
                                       />
                                     </div>
@@ -288,16 +327,33 @@ const Cart = () => {
   );
 };
 
+const getUser = (): Promise<ApiResponse<UserData>> =>
+  instance.get("/api/users", {
+    data: {
+      email: "KLeya@gmail.com",
+    },
+  });
+
 const Avatar = () => {
   const navigate = useNavigate();
+  // const { data } = useQuery(["user"], getUser);
+
+  const [userData, setUserData] = useState<null | UserData>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("userData");
+    user && setUserData(JSON.parse(user));
+  }, []);
+
   const mutation = useMutation({
-    mutationFn: () => axios.get("/api/sign-out"),
+    mutationFn: () => instance.get("/api/sign-out"),
     onSuccess: (data: any) => {
       return navigate("/");
     },
   });
 
   const handleSignOut = () => {
+    window.localStorage.removeItem("userData");
     mutation.mutate();
   };
 
@@ -322,13 +378,26 @@ const Avatar = () => {
           <Menu.Item>
             {({ active }) => (
               <a
-                href="#"
+                href="/cabinet"
                 className={clsx(
                   active ? "bg-gray-100" : "",
                   "block px-4 py-2 text-sm text-gray-700"
                 )}
               >
                 Мой профиль
+              </a>
+            )}
+          </Menu.Item>
+          <Menu.Item>
+            {({ active }) => (
+              <a
+                href="/cabinet/orders"
+                className={clsx(
+                  active ? "bg-gray-100" : "",
+                  "block px-4 py-2 text-sm text-gray-700"
+                )}
+              >
+                Найти товар
               </a>
             )}
           </Menu.Item>
